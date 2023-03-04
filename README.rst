@@ -29,7 +29,8 @@ you want your program to accept, and ``duckargs`` will print the corresponding p
 
 After running the above command, the file ``program.py`` will contain the following code:
 
-..code:: python
+
+.. code:: python
 
     # positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -F --file file_that_exists -a -b -c
 
