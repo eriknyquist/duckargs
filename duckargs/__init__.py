@@ -1,7 +1,8 @@
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 import sys
 import os
+import re
 
 PYTHON_TEMPLATE = """import argparse
 
@@ -11,6 +12,8 @@ def main():
 
 {0}
     args = parser.parse_args()
+
+{1}
 
 if __name__ == "__main__":
     main()
@@ -36,13 +39,28 @@ class CmdlineOpt(object):
     SUCCESS_AND_FULL = 1
     FAILURE = 2
 
+    nonalpha_rgx = re.compile("[^0-9a-zA-Z\-]")
+
     def __init__(self):
         self.value = None
         self.opt = None
         self.longopt = None
         self.type = None
+        self.var_name = None
 
     def finalize(self):
+        if self.is_positional():
+            varname = self.value
+        else:
+            if self.longopt is not None:
+                varname = self.longopt
+            elif self.opt is not None:
+                varname = self.opt
+            else:
+                raise RuntimeError(f"Invalid attribute values for {self.__class__.__name__}")
+
+        self.var_name = varname.lstrip('-').replace('-', '_')
+
         if self.value is None:
             return
         try:
@@ -67,20 +85,22 @@ class CmdlineOpt(object):
                 self.type = ArgType.STRING
 
     def add_arg(self, arg):
+        cleaned_arg = self.nonalpha_rgx.sub('-', arg)
+
         if arg.startswith('--'):
             if self.longopt is None:
-                self.longopt = arg
+                self.longopt = cleaned_arg
             else:
                 return self.FAILURE
 
         elif arg.startswith('-'):
             if self.opt is None:
-                self.opt = arg
+                self.opt = cleaned_arg
             else:
                 return self.FAILURE
         else:
             if self.value is None:
-                self.value = arg
+                self.value = cleaned_arg
 
             return self.SUCCESS_AND_FULL
 
@@ -171,5 +191,6 @@ def process_args():
 
 
 def generate_python_code(processed_args):
-    opttext = "    " + "\n    ".join([o.generate_code() for o in processed_args])
-    return PYTHON_TEMPLATE.format(opttext)
+    optlines = "    " + "\n    ".join([o.generate_code() for o in processed_args])
+    printlines = "    " + "\n    ".join([f"print(args.{o.var_name})" for o in processed_args])
+    return PYTHON_TEMPLATE.format(optlines, printlines)

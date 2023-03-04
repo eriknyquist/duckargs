@@ -24,7 +24,7 @@ you want your program to accept, and ``duckargs`` will print the corresponding p
 
 ::
 
-    $ python -m duckargs positional_arg1 positional_arg2 -i --intval 4 -f 3.3 -F --file file_that_exists -a -b -c
+    $ python -m duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -F --file file_that_exists -a -b -c
 
     import argparse
 
@@ -34,13 +34,22 @@ you want your program to accept, and ``duckargs`` will print the corresponding p
 
         parser.add_argument('positional_arg1', help='a string')
         parser.add_argument('positional_arg2', help='a string')
-        parser.add_argument('-i', '--intval', default=4, type=int, help='an int value')
+        parser.add_argument('-i', '--int-val', default=4, type=int, help='an int value')
         parser.add_argument('-f', default=3.3, type=float, help='a float value')
         parser.add_argument('-F', '--file', default='file_that_exists', type=argparse.FileType('w'), help='a filename')
         parser.add_argument('-a', action='store_true')
         parser.add_argument('-b', action='store_true')
         parser.add_argument('-c', action='store_true')
         args = parser.parse_args()
+
+        print(args.positional_arg1)
+        print(args.positional_arg2)
+        print(args.int_val)
+        print(args.f)
+        print(args.file)
+        print(args.a)
+        print(args.b)
+        print(args.c)
 
     if __name__ == "__main__":
         main()
