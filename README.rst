@@ -15,21 +15,21 @@ you want your program to accept, and ``duckargs`` will print the corresponding p
 
 ::
 
-	$ python -m duckargs -i --intval 4 -f --floatval 3.3 -F --file testfile -a -b -c positional_arg
+    $ python -m duckargs -i --intval 4 -f --floatval 3.3 -F --file testfile -a -b -c positional_arg
 
-	import argparse
+    import argparse
 
-	def main():
-		parser = argparse.ArgumentParser(description='',
-										 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    def main():
+        parser = argparse.ArgumentParser(description='',
+                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-		parser.add_argument('-i', '--intval', default=4, type=int, help='an int value')
-		parser.add_argument('-f', '--floatval', default=3.3, type=float, help='a float value')
-		parser.add_argument('-F', '--file', default='testfile', type=argparse.FileType('w'), help='a filename')
-		parser.add_argument('-a', action='store_true')
-		parser.add_argument('-b', action='store_true')
-		parser.add_argument('-c', default='positional_arg', help='a string')
-		args = parser.parse_args()
+        parser.add_argument('-i', '--intval', default=4, type=int, help='an int value')
+        parser.add_argument('-f', '--floatval', default=3.3, type=float, help='a float value')
+        parser.add_argument('-F', '--file', default='testfile', type=argparse.FileType('w'), help='a filename')
+        parser.add_argument('-a', action='store_true')
+        parser.add_argument('-b', action='store_true')
+        parser.add_argument('-c', default='positional_arg', help='a string')
+        args = parser.parse_args()
 
-	if __name__ == "__main__":
-		main()
+    if __name__ == "__main__":
+        main()
