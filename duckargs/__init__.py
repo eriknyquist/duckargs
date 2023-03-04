@@ -1,3 +1,5 @@
+__version__ = "0.1.0"
+
 import sys
 import os
 
@@ -158,10 +160,7 @@ def process_args():
 
     return ret
 
-def main():
-    opts = process_args()
-    opttext = "    " + "\n    ".join([o.generate_code() for o in opts])
-    print(PYTHON_TEMPLATE.format(opttext))
 
-if __name__ == "__main__":
-    main()
+def generate_python_code(processed_args):
+    opttext = "    " + "\n    ".join([o.generate_code() for o in processed_args])
+    return PYTHON_TEMPLATE.format(opttext)
