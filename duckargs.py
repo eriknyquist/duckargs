@@ -1,6 +1,17 @@
 import sys
 import os
 
+PYTHON_TEMPLATE = """import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+{0}
+    args = parser.parse_args()
+
+if __name__ == "__main__":
+    main()
+"""
 
 class ArgType(object):
     """
@@ -21,53 +32,48 @@ class CmdlineOpt(object):
         self.opt = None
         self.longopt = None
         self.type = None
-        self.default = None
 
-    def _finalize(self):
+    def finalize(self):
+        if self.value is None:
+            return
         try:
             intval = int(self.value)
         except ValueError:
             pass
         else:
-            self.default = intval
             self.type = ArgType.INT
-        
+
         if self.type is None:
             try:
                 fltval = float(self.value)
             except ValueError:
                 pass
             else:
-                self.default = floatval
                 self.type = ArgType.FLOAT
 
         if self.type is None:
             if os.path.isfile(self.value):
-                self.default = self.value
                 self.type = ArgType.FILE
             else:
-                self.default = self.value
                 self.type = ArgType.STRING
-
-        return True
 
     def add_arg(self, arg):
         if arg.startswith('--'):
             if self.longopt is None:
                 self.longopt = arg
             else:
-                return self._finalize()
+                return True
 
         elif arg.startswith('-'):
             if self.opt is None:
                 self.opt = arg
             else:
-                return self._finalize()
+                return True
         else:
             if self.value is None:
                 self.value = arg
             else:
-                return self._finalize()
+                return True
 
         return False
 
@@ -82,9 +88,36 @@ class CmdlineOpt(object):
 
     def generate_code(self):
         if self.is_flag():
-            sig = self.opttext() + "action='store_true', help='',"
+            funcargs = self.opttext() + "action='store_true'"
+
         elif self.is_option():
-            sig = self.opttext() + f", help='',"
+            if self.type in [ArgType.FILE, ArgType.STRING]:
+                value = f"'{self.value}'"
+            else:
+                value = self.value
+
+            funcargs = self.opttext() + f", type={self.type}, default={value}"
+
+        elif self.is_positional():
+            funcargs = f"'{self.value}'"
+        else:
+            raise RuntimeError('Invalid options provided')
+
+        if self.type is not None:
+            if self.type == ArgType.INT:
+                helptext = "an int value"
+            elif self.type == ArgType.FLOAT:
+                helptext = "a float value"
+            elif self.type == ArgType.FILE:
+                helptext = "a filename"
+            elif self.type == ArgType.STRING:
+                helptext = "a string"
+            else:
+                raise RuntimeError('Invalid type setting')
+
+            funcargs += f", help='{helptext}'"
+
+        return f"parser.add_argument({funcargs})"
 
     def is_empty(self):
         return (self.value is None) and (self.opt is None) and (self.longopt is None)
@@ -112,17 +145,21 @@ def process_args():
     for arg in sys.argv[1:]:
         failed = curr.add_arg(arg)
         if failed:
+            curr.finalize()
             ret.append(curr)
             curr = CmdlineOpt()
             curr.add_arg(arg)
 
     if not curr.is_empty():
+        curr.finalize()
         ret.append(curr)
 
     return ret
 
 def main():
-    print(process_args())
+    opts = process_args()
+    opttext = "    " + "\n    ".join([o.generate_code() for o in opts])
+    print(PYTHON_TEMPLATE.format(opttext))
 
 if __name__ == "__main__":
     main()
