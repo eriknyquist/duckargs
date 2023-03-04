@@ -96,7 +96,9 @@ class CmdlineOpt(object):
             else:
                 value = self.value
 
-            funcargs = self.opttext() + f", type={self.type}, default={value}"
+            funcargs = self.opttext() + f"default={value}"
+            if self.type is not ArgType.STRING:
+                funcargs += f", type={self.type}"
 
         elif self.is_positional():
             funcargs = f"'{self.value}'"
