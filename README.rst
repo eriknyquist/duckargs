@@ -59,8 +59,9 @@ After running the above command, the file ``program.py`` will contain the follow
         print(args.b)
         print(args.c)
 
-        if __name__ == "__main__":
-            main()
+    if __name__ == "__main__":
+        main()
+
 
 Pitfalls
 ========
