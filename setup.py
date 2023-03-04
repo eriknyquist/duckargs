@@ -14,7 +14,8 @@ with open(README, 'r') as f:
 setup(
     name='duckargs',
     version=__version__,
-    description=('Productivity tool for quickly creating python programs that parse command-line arguments'),
+    description=('Productivity tool for quickly creating python programs that parse command-line arguments. '
+                 'Stop writing argparse boilerplate code!'),
     long_description=long_description,
     url='http://github.com/eriknyquist/duckargs',
     author='Erik Nyquist',
