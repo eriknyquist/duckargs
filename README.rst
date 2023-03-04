@@ -36,7 +36,7 @@ you want your program to accept, and ``duckargs`` will print the corresponding p
         parser.add_argument('positional_arg2', help='a string')
         parser.add_argument('-i', '--intval', default=4, type=int, help='an int value')
         parser.add_argument('-f', default=3.3, type=float, help='a float value')
-        parser.add_argument('-F', '--file', default='file_that_exists', help='a string')
+        parser.add_argument('-F', '--file', default='testfile', type=argparse.FileType('w'), help='a filename')
         parser.add_argument('-a', action='store_true')
         parser.add_argument('-b', action='store_true')
         parser.add_argument('-c', action='store_true')
