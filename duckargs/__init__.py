@@ -8,6 +8,7 @@ PYTHON_TEMPLATE = """import argparse
 def main():
     parser = argparse.ArgumentParser(description='',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
 {0}
     args = parser.parse_args()
 
@@ -29,6 +30,12 @@ class CmdlineOpt(object):
     """
     Represents a single option / flag / positional argument parsed from command line arguments
     """
+
+    # Return values for add_arg
+    SUCCESS = 0
+    SUCCESS_AND_FULL = 1
+    FAILURE = 2
+
     def __init__(self):
         self.value = None
         self.opt = None
@@ -64,20 +71,20 @@ class CmdlineOpt(object):
             if self.longopt is None:
                 self.longopt = arg
             else:
-                return True
+                return self.FAILURE
 
         elif arg.startswith('-'):
             if self.opt is None:
                 self.opt = arg
             else:
-                return True
+                return self.FAILURE
         else:
             if self.value is None:
                 self.value = arg
-            else:
-                return True
 
-        return False
+            return self.SUCCESS_AND_FULL
+
+        return self.SUCCESS
 
     def opttext(self):
         ret = ""
@@ -147,12 +154,14 @@ def process_args():
     curr = CmdlineOpt()
 
     for arg in sys.argv[1:]:
-        failed = curr.add_arg(arg)
-        if failed:
+        status = curr.add_arg(arg)
+        if status != CmdlineOpt.SUCCESS:
             curr.finalize()
             ret.append(curr)
             curr = CmdlineOpt()
-            curr.add_arg(arg)
+
+            if status == CmdlineOpt.FAILURE:
+                curr.add_arg(arg)
 
     if not curr.is_empty():
         curr.finalize()
