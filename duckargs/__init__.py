@@ -4,16 +4,18 @@ import sys
 import os
 import re
 
-PYTHON_TEMPLATE = """import argparse
+PYTHON_TEMPLATE = """# {0}
+
+import argparse
 
 def main():
     parser = argparse.ArgumentParser(description='',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-{0}
+{1}
     args = parser.parse_args()
 
-{1}
+{2}
 
 if __name__ == "__main__":
     main()
@@ -39,7 +41,7 @@ class CmdlineOpt(object):
     SUCCESS_AND_FULL = 1
     FAILURE = 2
 
-    nonalpha_rgx = re.compile("[^0-9a-zA-Z\-]")
+    nonalpha_rgx = re.compile("[^0-9a-zA-Z\-\_]")
 
     def __init__(self):
         self.value = None
@@ -100,7 +102,10 @@ class CmdlineOpt(object):
                 return self.FAILURE
         else:
             if self.value is None:
-                self.value = cleaned_arg
+                if (self.opt) or (self.longopt):
+                    self.value = arg
+                else:
+                    self.value = arg.replace('-', '_')
 
             return self.SUCCESS_AND_FULL
 
@@ -193,4 +198,4 @@ def process_args():
 def generate_python_code(processed_args):
     optlines = "    " + "\n    ".join([o.generate_code() for o in processed_args])
     printlines = "    " + "\n    ".join([f"print(args.{o.var_name})" for o in processed_args])
-    return PYTHON_TEMPLATE.format(optlines, printlines)
+    return PYTHON_TEMPLATE.format(' '.join(sys.argv[1:]), optlines, printlines)
