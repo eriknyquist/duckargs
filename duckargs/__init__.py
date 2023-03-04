@@ -192,6 +192,14 @@ def process_args():
         curr.finalize()
         ret.append(curr)
 
+    # Check for duplicate attr names
+    seen_attr_names = {}
+    for o in ret:
+        if o.var_name in seen_attr_names:
+            raise ValueError(f"An option named '{o.var_name}' was used more than once")
+
+        seen_attr_names[o.var_name] = None
+
     return ret
 
 
