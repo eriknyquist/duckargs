@@ -10,7 +10,11 @@ options, and ``duckargs`` will generate the python code for a program that uses
 Example
 =======
 
+Run duckargs from the command line via ``python -m duckargs``, followed by whatever arguments/options/flags
+you want your program to accept, and ``duckargs`` will print the corresponding python code.
+
 ::
+
 	$ python -m duckargs -i --intval 4 -f --floatval 3.3 -F --file testfile -a -b -c positional_arg
 
 	import argparse
