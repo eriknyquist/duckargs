@@ -151,7 +151,10 @@ class CmdlineOpt(object):
             else:
                 raise RuntimeError('Invalid type setting')
 
-            funcargs += f", help='{helptext}'"
+        elif self.is_flag():
+            helptext = f"{self.var_name} flag"
+
+        funcargs += f", help='{helptext}'"
 
         return f"parser.add_argument({funcargs})"
 
