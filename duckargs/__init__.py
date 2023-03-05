@@ -205,7 +205,7 @@ class CmdlineOpt(object):
         return self.__str__()
 
 
-def process_args():
+def process_args(argv=sys.argv):
     """
     Process all command line arguments and return a list of CmdlineOpt instances
 
@@ -214,7 +214,7 @@ def process_args():
     ret = []
     curr = CmdlineOpt()
 
-    for arg in sys.argv[1:]:
+    for arg in argv[1:]:
         status = curr.add_arg(arg)
         if status != CmdlineOpt.SUCCESS:
             curr.finalize()
@@ -239,9 +239,9 @@ def process_args():
     return ret
 
 
-def generate_python_code(processed_args):
+def generate_python_code(argv=sys.argv):
     """
-    Process a list of CmdlineOpt instances and return the text of a python program
+    Process all command line arguments and return the text of a python program
     which handles the described command-line options
 
     :param list processed_args: List of CmdlineOpt instances
@@ -249,6 +249,7 @@ def generate_python_code(processed_args):
     :return: text of the corresponding python program
     :rtype: str
     """
+    processed_args = process_args(argv)
     optlines = "    " + "\n    ".join([o.generate_code() for o in processed_args])
     printlines = "    " + "\n    ".join([f"print(args.{o.var_name})" for o in processed_args])
-    return PYTHON_TEMPLATE.format(' '.join(sys.argv[1:]), optlines, printlines)
+    return PYTHON_TEMPLATE.format(' '.join(argv[1:]), optlines, printlines)

@@ -1,0 +1,24 @@
+# -a 4 -b --bbb 5.5 -t --tttt test -j srgsrh -k wergwshg
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('-a', default=4, type=int, help='an int value')
+    parser.add_argument('-b', '--bbb', default=5.5, type=float, help='a float value')
+    parser.add_argument('-t', '--tttt', default='test', help='a string')
+    parser.add_argument('-j', default='srgsrh', help='a string')
+    parser.add_argument('-k', default='wergwshg', help='a string')
+    args = parser.parse_args()
+
+    print(args.a)
+    print(args.bbb)
+    print(args.tttt)
+    print(args.j)
+    print(args.k)
+
+if __name__ == "__main__":
+    main()
+

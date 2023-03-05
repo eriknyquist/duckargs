@@ -1,0 +1,26 @@
+# pos1 pos2 pos3 pos4 pos5 pos6
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('pos1', help='a string')
+    parser.add_argument('pos2', help='a string')
+    parser.add_argument('pos3', help='a string')
+    parser.add_argument('pos4', help='a string')
+    parser.add_argument('pos5', help='a string')
+    parser.add_argument('pos6', help='a string')
+    args = parser.parse_args()
+
+    print(args.pos1)
+    print(args.pos2)
+    print(args.pos3)
+    print(args.pos4)
+    print(args.pos5)
+    print(args.pos6)
+
+if __name__ == "__main__":
+    main()
+

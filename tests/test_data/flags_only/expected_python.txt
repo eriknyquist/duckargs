@@ -1,0 +1,30 @@
+# -a -b -c -d -e -f -g -h
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('-a', action='store_true', help='a flag')
+    parser.add_argument('-b', action='store_true', help='b flag')
+    parser.add_argument('-c', action='store_true', help='c flag')
+    parser.add_argument('-d', action='store_true', help='d flag')
+    parser.add_argument('-e', action='store_true', help='e flag')
+    parser.add_argument('-f', action='store_true', help='f flag')
+    parser.add_argument('-g', action='store_true', help='g flag')
+    parser.add_argument('-h', action='store_true', help='h flag')
+    args = parser.parse_args()
+
+    print(args.a)
+    print(args.b)
+    print(args.c)
+    print(args.d)
+    print(args.e)
+    print(args.f)
+    print(args.g)
+    print(args.h)
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,26 @@
+# -a --test_1 5464 -b --test__-2 8 -j --j==j -g --lp++l pos-1 pos_2 pos_-_3
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('-a', '--test_1', default=5464, type=int, help='an int value')
+    parser.add_argument('-b', '--test__-2', default=8, type=int, help='an int value')
+    parser.add_argument('-j', '--j--j', action='store_true', help='j__j flag')
+    parser.add_argument('-g', '--lp--l', default='pos-1', help='a string')
+    parser.add_argument('pos_2', help='a string')
+    parser.add_argument('pos___3', help='a string')
+    args = parser.parse_args()
+
+    print(args.test_1)
+    print(args.test___2)
+    print(args.j__j)
+    print(args.lp__l)
+    print(args.pos_2)
+    print(args.pos___3)
+
+if __name__ == "__main__":
+    main()
+
