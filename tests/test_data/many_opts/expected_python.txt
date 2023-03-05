@@ -1,4 +1,4 @@
-# pos1 pos2 pos3 pos4 pos5 pos6 pos7 pos8 pos9 pos10 -a --aye 5 -b --yyy -k 0.0 -l jkjkj -o --out -d --ede -v --vvv jfijfdsifj -s --ssss -z --zzzz -c --ccc jiji -b --bbb 8 -i --ii d -q --qqqqsdgvs -y -r
+# pos1 pos2 pos3 pos4 pos5 pos6 pos7 pos8 pos9 pos10 -a --aye 5 -w --yyy -k 0.0 -l jkjkj -o --out -d --ede -v --vvv jfijfdsifj -s --ssss -z --zzzz -c --ccc jiji -b --bbb 8 -i --ii d -q --qqqqsdgvs -y -r
 
 import argparse
 
@@ -17,7 +17,7 @@ def main():
     parser.add_argument('pos9', help='a string')
     parser.add_argument('pos10', help='a string')
     parser.add_argument('-a', '--aye', default=5, type=int, help='an int value')
-    parser.add_argument('-b', '--yyy', action='store_true', help='yyy flag')
+    parser.add_argument('-w', '--yyy', action='store_true', help='yyy flag')
     parser.add_argument('-k', default=0.0, type=float, help='a float value')
     parser.add_argument('-l', default='jkjkj', help='a string')
     parser.add_argument('-o', '--out', action='store_true', help='out flag')
