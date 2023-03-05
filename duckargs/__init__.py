@@ -51,6 +51,10 @@ class CmdlineOpt(object):
         self.var_name = None
 
     def finalize(self):
+        """
+        Called for final post-processing after all required data for a single
+        CmdlineOpt instance has been collected
+        """
         if self.is_positional():
             varname = self.value
         else:
@@ -87,6 +91,12 @@ class CmdlineOpt(object):
                 self.type = ArgType.STRING
 
     def add_arg(self, arg):
+        """
+        Process a single argument command-line argument
+
+        :param str arg: the command-line argument to process
+        :return: 0 if success and room for more, 1 if success but no more room, 2 if no room
+        """
         cleaned_arg = self.nonalpha_rgx.sub('-', arg)
 
         if arg.startswith('--'):
@@ -121,6 +131,12 @@ class CmdlineOpt(object):
         return ret
 
     def generate_code(self):
+        """
+        Generate the 'parser.add_argument(...)' line for this option
+
+        :return: Line of python code to add this option to the arg parser
+        :rtype: str
+        """
         if self.is_flag():
             funcargs = self.opttext() + "action='store_true'"
 
@@ -159,15 +175,27 @@ class CmdlineOpt(object):
         return f"parser.add_argument({funcargs})"
 
     def is_empty(self):
+        """
+        Returns true if nothing has been set yet
+        """
         return (self.value is None) and (self.opt is None) and (self.longopt is None)
 
     def is_flag(self):
+        """
+        Returns true if this is an option with no argument (a flag)
+        """
         return ((self.opt is not None) or (self.longopt is not None)) and self.value is None
 
     def is_option(self):
+        """
+        Returns true if this is an option with an argument
+        """
         return ((self.opt is not None) or (self.longopt is not None)) and self.value is not None
 
     def is_positional(self):
+        """
+        Returns true if this is a positional argument
+        """
         return (self.opt is None) and (self.longopt is None) and (self.value is not None)
 
     def __str__(self):
@@ -178,6 +206,11 @@ class CmdlineOpt(object):
 
 
 def process_args():
+    """
+    Process all command line arguments and return a list of CmdlineOpt instances
+
+    :return: List of CmdlineOpt instances
+    """
     ret = []
     curr = CmdlineOpt()
 
@@ -207,6 +240,15 @@ def process_args():
 
 
 def generate_python_code(processed_args):
+    """
+    Process a list of CmdlineOpt instances and return the text of a python program
+    which handles the described command-line options
+
+    :param list processed_args: List of CmdlineOpt instances
+
+    :return: text of the corresponding python program
+    :rtype: str
+    """
     optlines = "    " + "\n    ".join([o.generate_code() for o in processed_args])
     printlines = "    " + "\n    ".join([f"print(args.{o.var_name})" for o in processed_args])
     return PYTHON_TEMPLATE.format(' '.join(sys.argv[1:]), optlines, printlines)
