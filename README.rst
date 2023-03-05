@@ -1,6 +1,13 @@
 duckargs
 ========
 
+.. |tests_badge| image:: https://github.com/eriknyquist/duckargs/actions/workflows/tests.yml/badge.svg
+.. |cov_badge| image:: https://github.com/eriknyquist/duckargs/actions/workflows/coverage.yml/badge.svg
+.. |version_badge| image:: https://badgen.net/pypi/v/duckargs
+.. |license_badge| image:: https://badgen.net/pypi/license/duckargs
+
+|tests_badge| |cov_badge| |version_badge| |license_badge|
+
 The purpose of this package is to save some typing whenever you want to quickly
 create a python program that accepts command line arguments. Just run ``duckargs``
 with the arguments that you want your program to accept, with example values for
