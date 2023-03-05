@@ -27,7 +27,7 @@ class ArgType(object):
     """
     INT = "int"
     FLOAT = "float"
-    FILE = "argparse.FileType('w')"
+    FILE = "argparse.FileType()"
     STRING = "str"
 
 
