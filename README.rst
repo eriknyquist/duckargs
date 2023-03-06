@@ -69,6 +69,18 @@ After running the above command, the file ``program.py`` will contain the follow
     if __name__ == "__main__":
         main()
 
+Use duckargs in python code
+===========================
+
+If you want to use duckargs in your own script, you can use the ``duckargs.generate_python_code`` function,
+which accepts a list of command line arguments:
+
+.. code:: python
+
+    import sys
+    from duckargs import generate_python_code
+
+    python_code = generate_python_code(sys.argv)
 
 Pitfalls
 ========
