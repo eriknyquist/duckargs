@@ -78,7 +78,7 @@ will use the comma-separated values as a ``choices`` list for argparse, e.g.:
 
 ::
 
-    parser.add_argument('-m', '--mode', choices=['active', 'idle', 'stim'], default='active', help='a string')
+    parser.add_argument('-m', '--mode', choices=['active', 'idle', 'sim'], default='active', help='a string')
 
 Real filename for option argument
 =================================
