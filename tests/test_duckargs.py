@@ -40,6 +40,9 @@ class TestDuckargs(unittest.TestCase):
     def test_many_opts(self):
         self._run_test("many_opts")
 
+    def test_choices(self):
+        self._run_test("choices")
+
     def test_duplicate_names(self):
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-a'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-b', '-a'])

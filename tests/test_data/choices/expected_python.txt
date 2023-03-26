@@ -1,0 +1,24 @@
+# pos1 pos2 -f -g -q --qefqaf op,ep,orp
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('pos1', help='a string')
+    parser.add_argument('pos2', help='a string')
+    parser.add_argument('-f', action='store_true', help='f flag')
+    parser.add_argument('-g', action='store_true', help='g flag')
+    parser.add_argument('-q', '--qefqaf', choices=['op', 'ep', 'orp'], default='op', help='a string')
+    args = parser.parse_args()
+
+    print(args.pos1)
+    print(args.pos2)
+    print(args.f)
+    print(args.g)
+    print(args.qefqaf)
+
+if __name__ == "__main__":
+    main()
+
