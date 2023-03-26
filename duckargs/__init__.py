@@ -122,13 +122,13 @@ class CmdlineOpt(object):
         return self.SUCCESS
 
     def opttext(self):
-        ret = ""
+        ret = []
         if self.opt is not None:
-            ret += f"'{self.opt}', "
+            ret.append(f"'{self.opt}'")
         if self.longopt is not None:
-            ret += f"'{self.longopt}', "
+            ret.append(f"'{self.longopt}'")
 
-        return ret
+        return ', '.join(ret)
 
     def generate_code(self):
         """
@@ -138,15 +138,25 @@ class CmdlineOpt(object):
         :rtype: str
         """
         if self.is_flag():
-            funcargs = self.opttext() + "action='store_true'"
+            funcargs = self.opttext() + ", action='store_true'"
 
         elif self.is_option():
-            if self.type in [ArgType.FILE, ArgType.STRING]:
+            funcargs = self.opttext()
+            if self.type == ArgType.STRING:
+                # Check if string argument has comma-separated choices
+                choices = self.value.split(',')
+                if len(choices) > 1:
+                    funcargs += f", choices={choices}"
+                    value = f"'{choices[0]}'"
+                else:
+                    value = f"'{self.value}'"
+
+            elif self.type == ArgType.FILE:
                 value = f"'{self.value}'"
             else:
                 value = self.value
 
-            funcargs = self.opttext() + f"default={value}"
+            funcargs += f", default={value}"
             if self.type is not ArgType.STRING:
                 funcargs += f", type={self.type}"
 
