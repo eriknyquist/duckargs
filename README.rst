@@ -69,6 +69,29 @@ After running the above command, the file ``program.py`` will contain the follow
     if __name__ == "__main__":
         main()
 
+Comma-separated choices for option argument
+===========================================
+
+If you have an option which accepts an argument, and you write an argument string with
+multiple values separated by commas (e.g. ``-m --mode active,idle,sim``), then ``duckargs``
+will use the comma-separated values as a ``choices`` list for argparse, e.g.:
+
+::
+
+    parser.add_argument('-m', '--mode', choices=['active', 'idle', 'stim'], default='active', help='a string')
+
+Real filename for option argument
+=================================
+
+If you have an option which accepts an argument, and the argument string that you write
+happens to be the path to a file that actually exists (e.g. ``-f --filename real_file.txt``),
+then ``duckargs`` will tell argparse that this argument is a file, e.g.:
+
+::
+
+    parser.add_argument('-f', '--filename', default='real_file.txt', type=argparse.FileType(), help='a filename')
+
+
 Use duckargs in python code
 ===========================
 
