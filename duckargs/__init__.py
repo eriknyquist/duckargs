@@ -85,7 +85,7 @@ class CmdlineOpt(object):
                 self.type = ArgType.FLOAT
 
         if self.type is None:
-            if os.path.isfile(self.value):
+            if ('FILE' == self.value) or os.path.isfile(self.value):
                 self.type = ArgType.FILE
             else:
                 self.type = ArgType.STRING
@@ -156,7 +156,9 @@ class CmdlineOpt(object):
             else:
                 value = self.value
 
-            funcargs += f", default={value}"
+            default_str = "None" if self.type is ArgType.FILE else str(value)
+            funcargs += f", default={default_str}"
+
             if self.type is not ArgType.STRING:
                 funcargs += f", type={self.type}"
 

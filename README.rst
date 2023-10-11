@@ -31,15 +31,15 @@ you want your program to accept, and ``duckargs`` will print the corresponding p
 
 ::
 
-    $ python -m duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -F --file file_that_exists -a -b -c > program.py
+    $ python -m duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -f --file FILE -F --otherfile FILE -a -b -c
 
 
-After running the above command, the file ``program.py`` will contain the following code:
+The output of the above command looks like this:
 
 
 .. code:: python
 
-    # positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -F --file file_that_exists -a -b -c
+    # positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -f --file FILE -F --otherfile FILE -a -b -c
 
     import argparse
 
@@ -51,7 +51,8 @@ After running the above command, the file ``program.py`` will contain the follow
         parser.add_argument('positional_arg2', help='a string')
         parser.add_argument('-i', '--int-val', default=4, type=int, help='an int value')
         parser.add_argument('-f', default=3.3, type=float, help='a float value')
-        parser.add_argument('-F', '--file', default='file_that_exists', type=argparse.FileType(), help='a filename')
+        parser.add_argument('-f', '--file', default=None, type=argparse.FileType(), help='a filename')
+        parser.add_argument('-F', '--otherfile', default=None, type=argparse.FileType(), help='a filename')
         parser.add_argument('-a', action='store_true', help='a flag')
         parser.add_argument('-b', action='store_true', help='b flag')
         parser.add_argument('-c', action='store_true', help='c flag')
@@ -62,6 +63,7 @@ After running the above command, the file ``program.py`` will contain the follow
         print(args.int_val)
         print(args.f)
         print(args.file)
+        print(args.otherfile)
         print(args.a)
         print(args.b)
         print(args.c)
@@ -80,16 +82,22 @@ will use the comma-separated values as a ``choices`` list for argparse, e.g.:
 
     parser.add_argument('-m', '--mode', choices=['active', 'idle', 'sim'], default='active', help='a string')
 
-Real filename for option argument
-=================================
+Filenames for option arguments
+==============================
 
-If you have an option which accepts an argument, and the argument string that you write
-happens to be the path to a file that actually exists (e.g. ``-f --filename real_file.txt``),
-then ``duckargs`` will tell argparse that this argument is a file, e.g.:
+If you have an option that you want to accept a filename, you have two ways to tell
+``duckargs`` that the option argument should be treated as a file:
+
+* Pass the path to a file that actually exists (e.g. ``-f --filename file.txt``)
+  as the option argument
+
+* Pass ``FILE`` as the option argument (e.g. ``-f --filename FILE``)
+
+Either of which will generate a line like this:
 
 ::
 
-    parser.add_argument('-f', '--filename', default='real_file.txt', type=argparse.FileType(), help='a filename')
+    parser.add_argument('-f', '--filename', default='file', type=argparse.FileType(), help='a filename')
 
 
 Use duckargs in python code

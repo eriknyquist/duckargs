@@ -1,1 +1,1 @@
-duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -F --file file_that_exists -a -b -c
+duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -f --file FILE -F --otherfile FILE -a -b -c
