@@ -1,5 +1,7 @@
-duckargs
-========
+.. |duck| unicode:: 0x1F986
+
+duckargs |duck|
+===============
 
 .. |tests_badge| image:: https://github.com/eriknyquist/duckargs/actions/workflows/tests.yml/badge.svg
 .. |cov_badge| image:: https://github.com/eriknyquist/duckargs/actions/workflows/coverage.yml/badge.svg
@@ -8,7 +10,7 @@ duckargs
 
 |tests_badge| |cov_badge| |version_badge| |license_badge|
 
-The purpose of this package is to save some typing whenever you want to quickly
+The purpose of ``duckargs`` is to save some typing whenever you want to quickly
 create a python program that accepts command line arguments. Just run ``duckargs``
 with the arguments that you want your program to accept, with example values for
 options, and ``duckargs`` will generate the python code for a program that uses
@@ -122,3 +124,13 @@ followed by a positional argument (as in: ``python -m duckargs -q --quiet positi
 an option ``-q --quiet`` with a required argument.
 
 To avoid this, it is recommended to declare your positional arguments first (as in: ``python -m duckargs positional_arg -q --quiet``)
+
+Contributions
+-------------
+
+Contributions are welcome, please open a pull request at `<https://github.com/eriknyquist/duckargs/pulls>`_
+and ensure that all existing tests pass, and new test(s) are added if required (run tests
+via ``python setup.py test``).
+
+If you have any questions about / need help with contributions or tests, please
+contact Erik at eknyquist@gmail.com.
