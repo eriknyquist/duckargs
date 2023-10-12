@@ -28,12 +28,13 @@ Install with pip (python 3x required):
 Example
 =======
 
-Run duckargs from the command line via ``python -m duckargs``, followed by whatever arguments/options/flags
-you want your program to accept, and ``duckargs`` will print the corresponding python code.
+Run duckargs from the command line via ``duckargs`` or ``python -m duckargs``, followed
+by whatever arguments/options/flags you want your program to accept, and ``duckargs``
+will print the corresponding python code. For example:
 
 ::
 
-    $ python -m duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -f --file FILE -F --otherfile FILE -a -b -c
+    $ duckargs positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -f --file FILE -F --otherfile FILE -a -b -c
 
 
 The output of the above command looks like this:

@@ -39,6 +39,9 @@ setup(
     cmdclass={'test': RunDuckargsTests},
     include_package_data=True,
     zip_safe=False,
+    entry_points = {
+        'console_scripts': ['duckargs=duckargs.__main__:main']
+    },
     python_requires=">=3.7",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
