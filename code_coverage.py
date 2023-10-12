@@ -1,8 +1,10 @@
 import unittest
+import sys
+
 from coverage import Coverage
 
 
-MIN_COVERAGE_PERCENT = 95.0
+MIN_COVERAGE_PERCENT = 95
 
 
 def main():
@@ -16,10 +18,17 @@ def main():
     cov.stop()
     pc = cov.report()
 
-    if pc < MIN_COVERAGE_PERCENT:
-        raise ValueError(f"Coverage percent was below {MIN_COVERAGE_PERCENT:.4f} ({pc:.4f})")
+    exit_code = 0
+    msg = ""
 
-    print(f"Success, coverage was above {MIN_COVERAGE_PERCENT:.2f}%")
+    if pc < float(MIN_COVERAGE_PERCENT):
+        msg = f"ERROR!! Test coverage is {pc:.4f}% (must be at least {MIN_COVERAGE_PERCENT}%)."
+        exit_code = 1
+    else:
+        msg = f"All good. Test coverage is sufficient (must be at least {MIN_COVERAGE_PERCENT}%)."
+
+    print(f"\n{msg}\n")
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()
