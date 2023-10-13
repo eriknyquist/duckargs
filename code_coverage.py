@@ -8,7 +8,7 @@ MIN_COVERAGE_PERCENT = 95
 
 
 def main():
-    cov = Coverage()
+    cov = Coverage(omit="tests/*")
     cov.start()
 
     suite = unittest.TestLoader().discover("tests")
