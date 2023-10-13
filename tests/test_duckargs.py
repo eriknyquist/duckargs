@@ -73,6 +73,14 @@ class TestDuckargs(unittest.TestCase):
         os.environ["DUCKARGS_PRINT"] = "0"
         self._run_test("env_all")
 
+    def test_invalid_env_print(self):
+        os.environ["DUCKARGS_PRINT"] = "ksfensik"
+        self.assertRaises(RuntimeError, generate_python_code, ['duckargs', '-a'])
+
+    def test_invalid_env_comment(self):
+        os.environ["DUCKARGS_COMMENT"] = "ksfensik"
+        self.assertRaises(RuntimeError, generate_python_code, ['duckargs', '-a'])
+
     def test_duplicate_names(self):
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-a'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-b', '-a'])
