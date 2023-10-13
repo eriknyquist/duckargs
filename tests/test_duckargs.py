@@ -49,6 +49,12 @@ class TestDuckargs(unittest.TestCase):
     def test_positional_values(self):
         self._run_test("positional_values")
 
+    def test_negative_int(self):
+        self._run_test("negative_int")
+
+    def test_negative_hex(self):
+        self._run_test("negative_hex")
+
     def test_duplicate_names(self):
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-a'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-b', '-a'])

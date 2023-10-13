@@ -31,6 +31,23 @@ class ArgType(object):
     STRING = "str"
 
 
+def _is_int(arg):
+    ret = True
+
+    try:
+        intval = int(arg)
+    except ValueError:
+        if ((len(arg) >= 3) and (arg[:2].lower() == "0x")) or \
+           ((len(arg) >= 4) and (arg[:3].lower() == "-0x")):
+            try:
+                intval = int(arg, 16)
+            except ValueError:
+                ret = False
+        else:
+            ret = False
+
+    return ret
+
 class CmdlineOpt(object):
     """
     Represents a single option / flag / positional argument parsed from command line arguments
@@ -72,17 +89,7 @@ class CmdlineOpt(object):
         if self.value is None:
             return
 
-        try:
-            intval = int(self.value)
-        except ValueError:
-            if (len(self.value) >= 3) and (self.value[:2].lower() == "0x"):
-                try:
-                    intval = int(self.value, 16)
-                except ValueError:
-                    pass
-                else:
-                    self.type = ArgType.INT
-        else:
+        if _is_int(self.value):
             self.type = ArgType.INT
 
         if self.type is None:
@@ -108,20 +115,22 @@ class CmdlineOpt(object):
         """
         cleaned_arg = self.nonalpha_rgx.sub('-', arg)
 
+        is_int = _is_int(arg)
+
         if arg.startswith('--'):
             if self.longopt is None:
                 self.longopt = cleaned_arg
             else:
                 return self.FAILURE
 
-        elif arg.startswith('-'):
+        elif arg.startswith('-') and not is_int:
             if self.opt is None:
                 self.opt = cleaned_arg
             else:
                 return self.FAILURE
         else:
             if self.value is None:
-                if (self.opt) or (self.longopt):
+                if (self.opt) or (self.longopt) or is_int:
                     self.value = arg
                 else:
                     self.value = arg.replace('-', '_')
