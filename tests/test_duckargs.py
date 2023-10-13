@@ -43,6 +43,12 @@ class TestDuckargs(unittest.TestCase):
     def test_choices(self):
         self._run_test("choices")
 
+    def test_hex(self):
+        self._run_test("hex")
+
+    def test_positional_values(self):
+        self._run_test("positional_values")
+
     def test_duplicate_names(self):
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-a'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-b', '-a'])

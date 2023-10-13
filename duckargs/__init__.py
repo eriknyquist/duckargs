@@ -36,6 +36,8 @@ class CmdlineOpt(object):
     Represents a single option / flag / positional argument parsed from command line arguments
     """
 
+    positional_count = 0
+
     # Return values for add_arg
     SUCCESS = 0
     SUCCESS_AND_FULL = 1
@@ -69,10 +71,17 @@ class CmdlineOpt(object):
 
         if self.value is None:
             return
+
         try:
             intval = int(self.value)
         except ValueError:
-            pass
+            if (len(self.value) >= 3) and (self.value[:2].lower() == "0x"):
+                try:
+                    intval = int(self.value, 16)
+                except ValueError:
+                    pass
+                else:
+                    self.type = ArgType.INT
         else:
             self.type = ArgType.INT
 
@@ -163,7 +172,16 @@ class CmdlineOpt(object):
                 funcargs += f", type={self.type}"
 
         elif self.is_positional():
-            funcargs = f"'{self.value}'"
+            if self.value.isidentifier():
+                funcargs = f"'{self.value}'"
+            else:
+                varname = f"positional_arg{CmdlineOpt.positional_count}"
+                funcargs = f"'{varname}'"
+                self.var_name = varname
+                CmdlineOpt.positional_count += 1
+
+            if self.type is not ArgType.STRING:
+                funcargs += f", type={self.type}"
         else:
             raise RuntimeError('Invalid options provided')
 
@@ -264,4 +282,5 @@ def generate_python_code(argv=sys.argv):
     processed_args = process_args(argv)
     optlines = "    " + "\n    ".join([o.generate_code() for o in processed_args])
     printlines = "    " + "\n    ".join([f"print(args.{o.var_name})" for o in processed_args])
+    CmdlineOpt.positional_count = 0
     return PYTHON_TEMPLATE.format(' '.join(argv[1:]), optlines, printlines)
