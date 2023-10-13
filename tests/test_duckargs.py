@@ -8,6 +8,11 @@ from duckargs import generate_python_code
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 class TestDuckargs(unittest.TestCase):
+    def setUp(self):
+        # Set default env. var values
+        os.environ["DUCKARGS_PRINT"] = "1"
+        os.environ["DUCKARGS_COMMENT"] = "1"
+
     def _run_test(self, test_dir_name):
         test_dir_path = os.path.join(TEST_DATA_DIR, test_dir_name)
         expected_python_path = os.path.join(test_dir_path, "expected_python.txt")
@@ -54,6 +59,19 @@ class TestDuckargs(unittest.TestCase):
 
     def test_negative_hex(self):
         self._run_test("negative_hex")
+
+    def test_env_print(self):
+        os.environ["DUCKARGS_PRINT"] = "0"
+        self._run_test("env_print")
+
+    def test_env_comment(self):
+        os.environ["DUCKARGS_COMMENT"] = "0"
+        self._run_test("env_comment")
+
+    def test_env_all(self):
+        os.environ["DUCKARGS_COMMENT"] = "0"
+        os.environ["DUCKARGS_PRINT"] = "0"
+        self._run_test("env_all")
 
     def test_duplicate_names(self):
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-a'])

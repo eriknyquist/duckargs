@@ -18,16 +18,6 @@ def main():
     parser.add_argument('-c', action='store_true', help='c flag')
     args = parser.parse_args()
 
-    print(args.positional_arg1)
-    print(args.positional_arg2)
-    print(args.int_val)
-    print(args.f)
-    print(args.file)
-    print(args.otherfile)
-    print(args.a)
-    print(args.b)
-    print(args.c)
-
 if __name__ == "__main__":
     main()
 
