@@ -19,7 +19,6 @@ if __name__ == "__main__":
 
 C_TEMPLATE = """{0}#include <stdlib.h>
 #include <stdio.h>
-#include <getopt.h>
 
 {1}
 void print_usage(void)
@@ -348,26 +347,27 @@ def generate_python_code(argv=sys.argv):
 
     return PYTHON_TEMPLATE.format(comment, optlines, printlines)
 
-def _generate_c_opt_lines(arg):
+def _generate_c_opt_lines(arg, desc=None, optarg='optarg'):
     ret = []
+
+    if desc is None:
+        desc = f"Option '{arg.opt}'"
 
     if arg.is_flag():
         ret.append(f"{arg.var_name} = true;")
 
     elif ArgType.FLOAT == arg.type:
-        ret.append(f"char *endptr = NULL;")
-        ret.append(f"{arg.var_name} = strtof(optarg, &endptr);")
-        ret.append(f"if (endptr == optarg)")
+        ret.append(f"{arg.var_name} = strtof({optarg}, &endptr);")
+        ret.append(f"if (endptr == {optarg})")
         ret.append(f"{{")
-        ret.append(f"    printf(\"Option '{arg.opt}' requires a floating-point argument\\n\");")
+        ret.append(f"    printf(\"{desc} requires a floating-point argument\\n\");")
         ret.append(f"    return -1;")
         ret.append(f"}}")
     elif ArgType.INT == arg.type:
-        ret.append(f"char *endptr = NULL;")
-        ret.append(f"{arg.var_name} = strtol(optarg, &endptr, 0);")
+        ret.append(f"{arg.var_name} = strtol({optarg}, &endptr, 0);")
         ret.append(f"if (endptr && (*endptr != '\\0'))")
         ret.append(f"{{")
-        ret.append(f"    printf(\"Option '{arg.opt}' requires an integer argument\\n\");")
+        ret.append(f"    printf(\"{desc} requires an integer argument\\n\");")
         ret.append(f"    return -1;")
         ret.append(f"}}")
     elif ArgType.STRING == arg.type:
@@ -375,36 +375,63 @@ def _generate_c_opt_lines(arg):
 
     return ret
 
-def _generate_c_getopt_code(processed_args, getopt_string, has_longopts):
-    positionals = []
-    ret = "    int ch;\n\n"
-
-    if has_longopts:
-        ret += f"    while ((ch = getopt_long(argc, argv, \"{getopt_string}\", long_options, NULL)) != -1)\n"
-    else:
-        ret += f"    while ((ch = getopt(argc, argv, \"{getopt_string}\")) != -1)\n"
-
-    ret += f"    {{\n"
-    ret += f"        switch (ch)\n"
-    ret += f"        {{\n"
+def _generate_c_getopt_code(processed_args, getopt_string, opts, positionals, has_longopts):
+    ret = ""
+    needs_endptr = False
 
     for arg in processed_args:
-        if arg.is_positional():
-            positionals.append(arg)
-            continue
+        if arg.type in [ArgType.INT, ArgType.FLOAT]:
+            needs_endptr = True
+            break
 
-        ret += f"            case '{arg.opt[1]}':\n"
-        ret += f"            {{\n"
+    if needs_endptr:
+        ret += "    char *endptr = NULL;\n"
 
-        ret += '\n'.join(["                " + x for x in _generate_c_opt_lines(arg)])
-        ret += '\n'
+    ret += "    int ch;\n\n"
 
-        ret += f"                break;\n"
-        ret += f"            }}\n"
+    if opts:
+        if has_longopts:
+            ret += f"    while ((ch = getopt_long(argc, argv, \"{getopt_string}\", long_options, NULL)) != -1)\n"
+        else:
+            ret += f"    while ((ch = getopt(argc, argv, \"{getopt_string}\")) != -1)\n"
 
-    ret += f"        }}\n"
-    ret += f"    }}\n\n"
-    ret += f"    return 0;\n"
+        ret += f"    {{\n"
+        ret += f"        switch (ch)\n"
+        ret += f"        {{\n"
+
+        for arg in opts:
+            ret += f"            case '{arg.opt[1]}':\n"
+            ret += f"            {{\n"
+
+            ret += '\n'.join(["                " + x for x in _generate_c_opt_lines(arg)])
+            ret += '\n'
+
+            ret += f"                break;\n"
+            ret += f"            }}\n"
+
+        ret += f"        }}\n"
+        ret += f"    }}\n\n"
+
+        if positionals:
+            # Has both positionals and opts
+            pass
+
+    elif positionals:
+        # Has only positionals and no opts
+        ret += f"    if (argc < {len(positionals) + 1})\n"
+        ret += f"    {{\n"
+        ret += f"        printf(\"Missing positional arguments\\n\");\n"
+        ret += f"        return -1;\n"
+        ret += f"    }}\n\n"
+
+        for i in range(len(positionals)):
+            arg = positionals[i]
+            desc = f"Positional argument #{i + 1} ({arg.var_name})"
+            optarg = f"argv[{i + 1}]"
+            ret += '\n'.join(["    " + x for x in _generate_c_opt_lines(arg, desc, optarg)])
+            ret += "\n\n"
+
+    ret += f"    return 0;"
 
     return ret
 
@@ -444,7 +471,7 @@ def _generate_c_usage_code(processed_args):
         else:
             has_opts = True
 
-    line = "program"
+    line = "program_name"
     if has_opts:
         line += " [OPTIONS]"
 
@@ -470,7 +497,8 @@ def generate_c_code(argv=sys.argv):
 
     long_opts = []
     has_flags = False
-
+    opts = []
+    positionals = []
     decls = ""
     getopt_string = ""
 
@@ -478,6 +506,11 @@ def generate_c_code(argv=sys.argv):
         typename = arg.type
         varname = arg.var_name
         value = arg.value
+
+        if arg.is_positional():
+            positionals.append(arg)
+        else:
+            opts.append(arg)
 
         if arg.is_flag():
             typename = "bool"
@@ -519,7 +552,11 @@ def generate_c_code(argv=sys.argv):
     if has_flags:
         comment_header += "#include <stdbool.h>\n"
 
-    parsing_code = _generate_c_getopt_code(processed_args, getopt_string, len(long_opts) > 0)
+    if opts:
+        comment_header += "#include <getopt.h>\n"
+
+    parsing_code = _generate_c_getopt_code(processed_args, getopt_string, opts,
+                                           positionals, len(long_opts) > 0)
 
     print_code = _generate_c_print_code(processed_args)
 
