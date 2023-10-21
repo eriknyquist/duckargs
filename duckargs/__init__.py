@@ -17,6 +17,23 @@ if __name__ == "__main__":
     main()
 """
 
+C_TEMPLATE = """{0}#include <stdlib.h>
+#include <stdio.h>
+#include <getopt.h>
+
+{1}
+int parse_args(int argc, char *argv[])
+{{
+{2}
+}}
+
+int main(int argc, char *argv[])
+{{
+    int ret = parse_args(argc, argv);
+    return ret;
+}}
+"""
+
 class ArgType(object):
     """
     Enumerates all argument types that will be recognized
@@ -114,12 +131,18 @@ class CmdlineOpt(object):
         is_int = _is_int(arg)
 
         if arg.startswith('--'):
+            if self.opt is None:
+                raise ValueError(f"long option ({arg}) is not allowed without short option")
+
             if self.longopt is None:
                 self.longopt = cleaned_arg
             else:
                 return self.FAILURE
 
         elif arg.startswith('-') and not is_int:
+            if len(arg) > 2:
+                raise ValueError(f"short option ({arg}) must have exactly one character after the dash (-)")
+
             if self.opt is None:
                 self.opt = cleaned_arg
             else:
@@ -143,71 +166,6 @@ class CmdlineOpt(object):
             ret.append(f"'{self.longopt}'")
 
         return ', '.join(ret)
-
-    def generate_code(self):
-        """
-        Generate the 'parser.add_argument(...)' line for this option
-
-        :return: Line of python code to add this option to the arg parser
-        :rtype: str
-        """
-        if self.is_flag():
-            funcargs = self.opttext() + ", action='store_true'"
-
-        elif self.is_option():
-            funcargs = self.opttext()
-            if self.type == ArgType.STRING:
-                # Check if string argument has comma-separated choices
-                choices = self.value.split(',')
-                if len(choices) > 1:
-                    funcargs += f", choices={choices}"
-                    value = f"'{choices[0]}'"
-                else:
-                    value = f"'{self.value}'"
-
-            elif self.type == ArgType.FILE:
-                value = f"'{self.value}'"
-            else:
-                value = self.value
-
-            default_str = "None" if self.type is ArgType.FILE else str(value)
-            funcargs += f", default={default_str}"
-
-            if self.type is not ArgType.STRING:
-                funcargs += f", type={self.type}"
-
-        elif self.is_positional():
-            if self.value.isidentifier():
-                funcargs = f"'{self.value}'"
-            else:
-                varname = f"positional_arg{CmdlineOpt.positional_count}"
-                funcargs = f"'{varname}'"
-                self.var_name = varname
-                CmdlineOpt.positional_count += 1
-
-            if self.type is not ArgType.STRING:
-                funcargs += f", type={self.type}"
-        else:
-            raise RuntimeError('Invalid options provided')
-
-        if self.type is not None:
-            if self.type == ArgType.INT:
-                helptext = "an int value"
-            elif self.type == ArgType.FLOAT:
-                helptext = "a float value"
-            elif self.type == ArgType.FILE:
-                helptext = "a filename"
-            elif self.type == ArgType.STRING:
-                helptext = "a string"
-            else:
-                raise RuntimeError('Invalid type setting')
-
-        elif self.is_flag():
-            helptext = f"{self.var_name} flag"
-
-        funcargs += f", help='{helptext}'"
-
-        return f"parser.add_argument({funcargs})"
 
     def is_empty(self):
         """
@@ -273,6 +231,71 @@ def process_args(argv=sys.argv):
 
     return ret
 
+def _generate_python_code_line(opt):
+    """
+    Generate the 'parser.add_argument(...)' line for an option
+
+    :return: Line of python code to add this option to the arg parser
+    :rtype: str
+    """
+    if opt.is_flag():
+        funcargs = opt.opttext() + ", action='store_true'"
+
+    elif opt.is_option():
+        funcargs = opt.opttext()
+        if opt.type == ArgType.STRING:
+            # Check if string argument has comma-separated choices
+            choices = opt.value.split(',')
+            if len(choices) > 1:
+                funcargs += f", choices={choices}"
+                value = f"'{choices[0]}'"
+            else:
+                value = f"'{opt.value}'"
+
+        elif opt.type == ArgType.FILE:
+            value = f"'{opt.value}'"
+        else:
+            value = opt.value
+
+        default_str = "None" if opt.type is ArgType.FILE else str(value)
+        funcargs += f", default={default_str}"
+
+        if opt.type is not ArgType.STRING:
+            funcargs += f", type={opt.type}"
+
+    elif opt.is_positional():
+        if opt.value.isidentifier():
+            funcargs = f"'{opt.value}'"
+        else:
+            varname = f"positional_arg{CmdlineOpt.positional_count}"
+            funcargs = f"'{varname}'"
+            opt.var_name = varname
+            CmdlineOpt.positional_count += 1
+
+        if opt.type is not ArgType.STRING:
+            funcargs += f", type={opt.type}"
+    else:
+        raise RuntimeError('Invalid options provided')
+
+    if opt.type is not None:
+        if opt.type == ArgType.INT:
+            helptext = "an int value"
+        elif opt.type == ArgType.FLOAT:
+            helptext = "a float value"
+        elif opt.type == ArgType.FILE:
+            helptext = "a filename"
+        elif opt.type == ArgType.STRING:
+            helptext = "a string"
+        else:
+            raise RuntimeError('Invalid type setting')
+
+    elif opt.is_flag():
+        helptext = f"{opt.var_name} flag"
+
+    funcargs += f", help='{helptext}'"
+
+    return f"parser.add_argument({funcargs})"
+
 
 def generate_python_code(argv=sys.argv):
     """
@@ -285,7 +308,7 @@ def generate_python_code(argv=sys.argv):
     :rtype: str
     """
     processed_args = process_args(argv)
-    optlines = "    " + "\n    ".join([o.generate_code() for o in processed_args])
+    optlines = "    " + "\n    ".join([_generate_python_code_line(o) for o in processed_args])
 
     printlines = ""
     env_print = os.environ.get('DUCKARGS_PRINT', 1)
@@ -311,3 +334,98 @@ def generate_python_code(argv=sys.argv):
     CmdlineOpt.positional_count = 0
 
     return PYTHON_TEMPLATE.format(comment, optlines, printlines)
+
+def _generate_c_getopt_code(processed_args, getopt_string, has_longopts):
+    positionals = []
+    ret = "    int ch;\n\n"
+
+    if has_longopts:
+        ret += f"    while ((ch = getopt_long(argc, argv, \"{getopt_string}\", long_options, NULL)) != -1)\n"
+    else:
+        ret += f"    while ((ch = getopt(argc, argv, \"{getopt_string}\")) != -1)\n"
+
+    ret += "    {\n"
+    ret += "        switch (ch)\n"
+    ret += "        {\n"
+
+    for arg in processed_args:
+        if arg.is_positional():
+            positionals.append(arg)
+            continue
+
+        ret += f"            case '{arg.opt[1]}':\n"
+        ret += f"            {{\n"
+
+        ret += f"                 break;\n"
+        ret += f"            }}\n"
+
+    ret += f"        }}\n"
+    ret += f"    }}"
+
+    return ret
+
+def generate_c_code(argv=sys.argv):
+    """
+    Process all command line arguments and return the text of a C program
+    which handles the described command-line options
+
+    :param list processed_args: List of CmdlineOpt instances
+
+    :return: text of the corresponding C program
+    :rtype: str
+    """
+    processed_args = process_args(argv)
+
+    long_opts = []
+    has_flags = False
+
+    decls = ""
+    getopt_string = ""
+
+    for arg in processed_args:
+        if arg.is_positional():
+            continue
+
+        typename = arg.type
+        varname = arg.var_name
+        value = arg.value
+
+        if arg.is_flag():
+            typename = "bool"
+            value = "false"
+            has_flags = True
+
+        elif arg.type in [ArgType.STRING, ArgType.FILE]:
+            typename = "char"
+            varname = "*" + varname
+
+            if arg.type == ArgType.FILE:
+                if arg.value == "FILE":
+                    value = "NULL"
+
+        decls += f"static {typename} {varname} = {value};\n"
+
+        if arg.opt:
+            getopt_string += arg.opt[1]
+            if not arg.is_flag():
+                getopt_string += ":"
+
+        if arg.longopt is not None:
+            longopt = arg.longopt.lstrip('-')
+            opt = arg.opt.lstrip('-')
+            argtype = "no_argument" if arg.is_flag() else "required_argument"
+            long_opts.append(f"{{\"{longopt}\", {argtype}, NULL, '{opt}'}},")
+
+    if long_opts:
+        decls += "\nstatic struct option long_options[] =\n{\n"
+        decls += "\n".join(["    " + opt for opt in long_opts])
+        decls += "\n    {NULL, 0, NULL, 0}\n};\n"
+
+    comment_header = ""
+
+    if has_flags:
+        comment_header += "#include <stdbool.h>\n"
+
+    parsing_code = _generate_c_getopt_code(processed_args, getopt_string, len(long_opts) > 0)
+
+    return C_TEMPLATE.format(comment_header, decls, parsing_code)

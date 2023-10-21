@@ -86,6 +86,16 @@ class TestDuckargs(unittest.TestCase):
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '-b', '-a'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a-a', '-a_a'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a-a', '-a+a'])
-        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '--aye', '-b', '--aye'])
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '--aye', '-b', '-a', '--aye'])
         self.assertRaises(ValueError, generate_python_code, ['duckargs', 'pos1', 'pos1'])
-        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '--aye', '6', '-b', '--bbb', '--aye'])
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '--aye', '6', '-b', '--aye'])
+
+    def test_longopt_without_shortopt(self):
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', '--a'])
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '--apple', '3', '--ya'])
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', 'a', 'b', 'c', '--apple'])
+
+    def test_shortopt_too_long(self):
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-rr'])
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', '-a', '--apple', '3', '-ya'])
+        self.assertRaises(ValueError, generate_python_code, ['duckargs', 'a', 'b', 'c', '-apple'])

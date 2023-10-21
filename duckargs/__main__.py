@@ -1,5 +1,5 @@
 import sys
-from duckargs import generate_python_code, __version__
+from duckargs import generate_python_code, generate_c_code, __version__
 
 USAGE = """
 duckargs %s
@@ -48,10 +48,11 @@ def main():
         print(USAGE)
         return
 
-    try:
-        print(generate_python_code())
-    except (ValueError, RuntimeError) as e:
-        print(f"Error: {e}")
+    #try:
+        #print(generate_python_code())
+    print(generate_c_code())
+    #except (ValueError, RuntimeError) as e:
+    #    print(f"Error: {e}")
     
 if __name__ == "__main__":
     main()

@@ -1,1 +1,1 @@
-duckargs -f --fff 0xabc -q 0x --test ox2
+duckargs -f --fff 0xabc -q 0x -t --test ox2
