@@ -22,15 +22,26 @@ C_TEMPLATE = """{0}#include <stdlib.h>
 #include <getopt.h>
 
 {1}
-int parse_args(int argc, char *argv[])
+void print_usage(void)
 {{
 {2}
+}}
+
+int parse_args(int argc, char *argv[])
+{{
+{3}
 }}
 
 int main(int argc, char *argv[])
 {{
     int ret = parse_args(argc, argv);
-    return ret;
+    if (0 != ret)
+    {{
+        return ret;
+    }}
+
+{4}
+    return 0;
 }}
 """
 
@@ -88,7 +99,12 @@ class CmdlineOpt(object):
         CmdlineOpt instance has been collected
         """
         if self.is_positional():
-            varname = self.value
+            if self.value.isidentifier():
+                self.var_name = self.value
+            else:
+                varname = f"positional_arg{CmdlineOpt.positional_count}"
+                self.var_name = varname
+                CmdlineOpt.positional_count += 1
         else:
             if self.longopt is not None:
                 varname = self.longopt
@@ -97,7 +113,7 @@ class CmdlineOpt(object):
             else:
                 raise RuntimeError(f"Invalid attribute values for {self.__class__.__name__}")
 
-        self.var_name = varname.lstrip('-').replace('-', '_')
+            self.var_name = varname.lstrip('-').replace('-', '_')
 
         if self.value is None:
             return
@@ -267,10 +283,7 @@ def _generate_python_code_line(opt):
         if opt.value.isidentifier():
             funcargs = f"'{opt.value}'"
         else:
-            varname = f"positional_arg{CmdlineOpt.positional_count}"
-            funcargs = f"'{varname}'"
-            opt.var_name = varname
-            CmdlineOpt.positional_count += 1
+            funcargs = f"'{opt.var_name}'"
 
         if opt.type is not ArgType.STRING:
             funcargs += f", type={opt.type}"
@@ -335,6 +348,33 @@ def generate_python_code(argv=sys.argv):
 
     return PYTHON_TEMPLATE.format(comment, optlines, printlines)
 
+def _generate_c_opt_lines(arg):
+    ret = []
+
+    if arg.is_flag():
+        ret.append(f"{arg.var_name} = true;")
+
+    elif ArgType.FLOAT == arg.type:
+        ret.append(f"char *endptr = NULL;")
+        ret.append(f"{arg.var_name} = strtof(optarg, &endptr);")
+        ret.append(f"if (endptr == optarg)")
+        ret.append(f"{{")
+        ret.append(f"    printf(\"Option '{arg.opt}' requires a floating-point argument\\n\");")
+        ret.append(f"    return -1;")
+        ret.append(f"}}")
+    elif ArgType.INT == arg.type:
+        ret.append(f"char *endptr = NULL;")
+        ret.append(f"{arg.var_name} = strtol(optarg, &endptr, 0);")
+        ret.append(f"if (endptr && (*endptr != '\\0'))")
+        ret.append(f"{{")
+        ret.append(f"    printf(\"Option '{arg.opt}' requires an integer argument\\n\");")
+        ret.append(f"    return -1;")
+        ret.append(f"}}")
+    elif ArgType.STRING == arg.type:
+        ret.append(f"{arg.var_name} = optarg;")
+
+    return ret
+
 def _generate_c_getopt_code(processed_args, getopt_string, has_longopts):
     positionals = []
     ret = "    int ch;\n\n"
@@ -344,9 +384,9 @@ def _generate_c_getopt_code(processed_args, getopt_string, has_longopts):
     else:
         ret += f"    while ((ch = getopt(argc, argv, \"{getopt_string}\")) != -1)\n"
 
-    ret += "    {\n"
-    ret += "        switch (ch)\n"
-    ret += "        {\n"
+    ret += f"    {{\n"
+    ret += f"        switch (ch)\n"
+    ret += f"        {{\n"
 
     for arg in processed_args:
         if arg.is_positional():
@@ -356,13 +396,65 @@ def _generate_c_getopt_code(processed_args, getopt_string, has_longopts):
         ret += f"            case '{arg.opt[1]}':\n"
         ret += f"            {{\n"
 
-        ret += f"                 break;\n"
+        ret += '\n'.join(["                " + x for x in _generate_c_opt_lines(arg)])
+        ret += '\n'
+
+        ret += f"                break;\n"
         ret += f"            }}\n"
 
     ret += f"        }}\n"
-    ret += f"    }}"
+    ret += f"    }}\n\n"
+    ret += f"    return 0;\n"
 
     return ret
+
+def _generate_c_print_code(processed_args):
+    ret = ""
+
+    for arg in processed_args:
+        format_arg = ""
+        var_name = ""
+
+        if arg.is_flag():
+            format_arg = "%s"
+            var_name = f"{arg.var_name} ? \"true\" : \"false\""
+        elif arg.type == ArgType.INT:
+            format_arg = "%d"
+            var_name = f"{arg.var_name}"
+        elif arg.type == ArgType.FLOAT:
+            format_arg = "%.4f"
+            var_name = f"{arg.var_name}"
+        elif arg.type in [ArgType.FILE, ArgType.STRING]:
+            format_arg = "%s"
+            var_name = f"{arg.var_name}"
+
+        ret += f"    printf(\"{arg.var_name}: {format_arg}\\n\", {var_name});\n"
+
+    return ret
+
+def _generate_c_usage_code(processed_args):
+    lines = []
+    positionals = []
+    has_opts = False
+
+    for arg in processed_args:
+        if arg.is_positional():
+            positionals.append(arg)
+            continue
+        else:
+            has_opts = True
+
+    line = "program"
+    if has_opts:
+        line += " [OPTIONS]"
+
+    if positionals:
+        positional_names = ' '.join([x.var_name for x in positionals])
+        line += f" {positional_names}"
+
+    lines.append(line + "\\n\\n")
+
+    return '\n'.join([f"    printf(\"{line}\");" for line in lines])
 
 def generate_c_code(argv=sys.argv):
     """
@@ -383,9 +475,6 @@ def generate_c_code(argv=sys.argv):
     getopt_string = ""
 
     for arg in processed_args:
-        if arg.is_positional():
-            continue
-
         typename = arg.type
         varname = arg.var_name
         value = arg.value
@@ -395,9 +484,13 @@ def generate_c_code(argv=sys.argv):
             value = "false"
             has_flags = True
 
+        elif arg.type == ArgType.INT:
+            typename = "long int"
+
         elif arg.type in [ArgType.STRING, ArgType.FILE]:
             typename = "char"
             varname = "*" + varname
+            value = f"\"{value}\""
 
             if arg.type == ArgType.FILE:
                 if arg.value == "FILE":
@@ -428,4 +521,8 @@ def generate_c_code(argv=sys.argv):
 
     parsing_code = _generate_c_getopt_code(processed_args, getopt_string, len(long_opts) > 0)
 
-    return C_TEMPLATE.format(comment_header, decls, parsing_code)
+    print_code = _generate_c_print_code(processed_args)
+
+    usage_code = _generate_c_usage_code(processed_args)
+
+    return C_TEMPLATE.format(comment_header, decls, usage_code, parsing_code, print_code)
