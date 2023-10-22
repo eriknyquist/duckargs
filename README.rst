@@ -272,9 +272,9 @@ Some things can be configured by setting environment variables.
 ``DUCKARGS_PRINT``
 ##################
 
-By default, ``duckargs`` generates a program that prints all provided arguments/options,
-so that you can see all the corresponding attribute names on the object returned by ``argparse``.
-If you want to disable this and generate programs with the print statements, set
+By default, ``duckargs`` generates a program that prints all provided arguments/options
+to stdout after argument parsing is complete.
+If you want to disable this and generate programs without the print statements, set
 ``DUCKARGS_PRINT=0`` in your environment variables.
 
 ``DUCKARGS_COMMENT``
@@ -288,8 +288,8 @@ variables.
 Use duckargs in python code
 ===========================
 
-If you want to use duckargs in your own script, you can use the ``duckargs.generate_python_code`` function,
-which accepts a list of command line arguments:
+If you want to use duckargs in your own script, you can use the ``duckargs.generate_python_code`` and
+``duckargs.generate_c_code`` functions, both of which accept a list of command line arguments:
 
 .. code:: python
 
@@ -297,6 +297,8 @@ which accepts a list of command line arguments:
     from duckargs import generate_python_code
 
     python_code = generate_python_code(sys.argv)
+
+    c_code = generate_c_code(sys.argv)
 
 Pitfalls
 ========
