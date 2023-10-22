@@ -2,7 +2,7 @@ import os
 import sys
 import unittest
 
-from duckargs import generate_python_code
+from duckargs import generate_python_code, generate_c_code
 
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -13,7 +13,7 @@ class TestDuckargs(unittest.TestCase):
         os.environ["DUCKARGS_PRINT"] = "1"
         os.environ["DUCKARGS_COMMENT"] = "1"
 
-    def _run_test(self, test_dir_name):
+    def _run_python_test(self, test_dir_name):
         test_dir_path = os.path.join(TEST_DATA_DIR, test_dir_name)
         expected_python_path = os.path.join(test_dir_path, "expected_python.txt")
         args_path = os.path.join(test_dir_path, "args.txt")
@@ -27,51 +27,111 @@ class TestDuckargs(unittest.TestCase):
         generated_python = generate_python_code(args).strip()
         self.assertEqual(generated_python, expected_python)
 
-    def test_readme_example(self):
-        self._run_test("readme_example")
+    def _run_c_test(self, test_dir_name):
+        test_dir_path = os.path.join(TEST_DATA_DIR, test_dir_name)
+        expected_c_path = os.path.join(test_dir_path, "expected_c.txt")
+        args_path = os.path.join(test_dir_path, "args.txt")
 
-    def test_flags_only(self):
-        self._run_test("flags_only")
+        with open(args_path, 'r') as fh:
+            args = fh.read().strip().split()
 
-    def test_positional_only(self):
-        self._run_test("positional_only")
+        with open(expected_c_path, 'r') as fh:
+            expected_c = fh.read().strip()
 
-    def test_options_only(self):
-        self._run_test("options_only")
+        generated_c = generate_c_code(args).strip()
+        self.assertEqual(generated_c, expected_c)
 
-    def test_normalize_names(self):
-        self._run_test("normalize_names")
+    def test_readme_example_c(self):
+        self._run_c_test("readme_example")
 
-    def test_many_opts(self):
-        self._run_test("many_opts")
+    def test_readme_example_python(self):
+        self._run_python_test("readme_example")
 
-    def test_choices(self):
-        self._run_test("choices")
+    def test_flags_only_c(self):
+        self._run_c_test("flags_only")
 
-    def test_hex(self):
-        self._run_test("hex")
+    def test_flags_only_python(self):
+        self._run_python_test("flags_only")
 
-    def test_positional_values(self):
-        self._run_test("positional_values")
+    def test_positional_only_c(self):
+        self._run_c_test("positional_only")
 
-    def test_negative_int(self):
-        self._run_test("negative_int")
+    def test_positional_only_python(self):
+        self._run_python_test("positional_only")
 
-    def test_negative_hex(self):
-        self._run_test("negative_hex")
+    def test_options_only_c(self):
+        self._run_c_test("options_only")
 
-    def test_env_print(self):
+    def test_options_only_python(self):
+        self._run_python_test("options_only")
+
+    def test_normalize_names_c(self):
+        self._run_c_test("normalize_names")
+
+    def test_normalize_names_python(self):
+        self._run_python_test("normalize_names")
+
+    def test_many_opts_c(self):
+        self._run_c_test("many_opts")
+
+    def test_many_opts_python(self):
+        self._run_python_test("many_opts")
+
+    def test_choices_c(self):
+        self._run_c_test("choices")
+
+    def test_choices_python(self):
+        self._run_python_test("choices")
+
+    def test_hex_c(self):
+        self._run_c_test("hex")
+
+    def test_hex_python(self):
+        self._run_python_test("hex")
+
+    def test_positional_values_c(self):
+        self._run_c_test("positional_values")
+
+    def test_positional_values_python(self):
+        self._run_python_test("positional_values")
+
+    def test_negative_int_c(self):
+        self._run_c_test("negative_int")
+
+    def test_negative_int_python(self):
+        self._run_python_test("negative_int")
+
+    def test_negative_hex_c(self):
+        self._run_c_test("negative_hex")
+
+    def test_negative_hex_python(self):
+        self._run_python_test("negative_hex")
+
+    def test_env_print_c(self):
         os.environ["DUCKARGS_PRINT"] = "0"
-        self._run_test("env_print")
+        self._run_c_test("env_print")
 
-    def test_env_comment(self):
+    def test_env_print_python(self):
+        os.environ["DUCKARGS_PRINT"] = "0"
+        self._run_python_test("env_print")
+
+    def test_env_comment_c(self):
         os.environ["DUCKARGS_COMMENT"] = "0"
-        self._run_test("env_comment")
+        self._run_c_test("env_comment")
 
-    def test_env_all(self):
+    def test_env_comment_python(self):
+        os.environ["DUCKARGS_COMMENT"] = "0"
+        self._run_python_test("env_comment")
+
+    def test_env_all_c(self):
         os.environ["DUCKARGS_COMMENT"] = "0"
         os.environ["DUCKARGS_PRINT"] = "0"
-        self._run_test("env_all")
+        self._run_c_test("env_all")
+
+    def test_env_all_python(self):
+        os.environ["DUCKARGS_COMMENT"] = "0"
+        os.environ["DUCKARGS_PRINT"] = "0"
+        self._run_python_test("env_all")
 
     def test_invalid_env_print(self):
         os.environ["DUCKARGS_PRINT"] = "ksfensik"

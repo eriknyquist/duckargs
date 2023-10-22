@@ -1,0 +1,21 @@
+# pos1 pos2:* -f:? --file:? FILE:+ -q:11 hello:12
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    parser.add_argument('pos1', help='a string')
+    parser.add_argument('pos2', nargs='*', help='a string')
+    parser.add_argument('-f', '--file', default=None, type=argparse.FileType(), nargs='+', help='a filename')
+    parser.add_argument('-q', default='hello', nargs=12, help='a string')
+    args = parser.parse_args()
+
+    print(args.pos1)
+    print(args.pos2)
+    print(args.file)
+    print(args.q)
+
+if __name__ == "__main__":
+    main()

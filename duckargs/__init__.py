@@ -45,8 +45,7 @@ int main(int argc, char *argv[])
         return ret;
     }}
 
-{4}
-    return 0;
+{4}    return 0;
 }}
 """
 
@@ -244,11 +243,26 @@ def process_args(argv=sys.argv):
 
     # Check for duplicate attr names
     seen_attr_names = {}
+    seen_opt_names = {}
+    seen_longopt_names = {}
+
     for o in ret:
         if o.var_name in seen_attr_names:
-            raise ValueError(f"An option named '{o.var_name}' was used more than once")
+            raise ValueError(f"Option '{o.var_name}' was defined more than once")
+        else:
+            seen_attr_names[o.var_name] = None
 
-        seen_attr_names[o.var_name] = None
+        if o.opt is not None:
+            if o.opt in seen_opt_names:
+                raise ValueError(f"Short option '{o.opt}' was defined more than once")
+            else:
+                seen_opt_names[o.opt] = None
+
+        if o.longopt is not None:
+            if o.longopt in seen_longopt_names:
+                raise ValueError(f"Long option '{o.longopt}' was defined more than once")
+            else:
+                seen_longopt_names[o.opt] = None
 
     return ret
 
@@ -376,8 +390,24 @@ def _generate_c_opt_lines(arg, desc=None, optarg='optarg'):
         ret.append(f"    printf(\"{desc} requires an integer argument\\n\");")
         ret.append(f"    return -1;")
         ret.append(f"}}")
-    elif arg.type in [ArgType.STRING, ArgType.FILE]:
+    elif ArgType.FILE == arg.type:
         ret.append(f"{arg.var_name} = {optarg};")
+    elif ArgType.STRING == arg.type:
+        ret.append(f"{arg.var_name} = {optarg};")
+
+        if type(arg.value) == list:
+            ret.append(f"for (int i = 0; i < {len(arg.value)}; i++)")
+            ret.append(f"{{")
+            ret.append(f"    if (0 == strcmp({arg.var_name}_choices[i], {arg.var_name}))")
+            ret.append(f"    {{")
+            ret.append(f"        break;")
+            ret.append(f"    }}")
+            ret.append(f"    if (i == {len(arg.value) - 1})")
+            ret.append(f"    {{")
+            ret.append(f"        printf(\"{desc} must be one of {arg.value}\\n\");")
+            ret.append(f"        return -1;")
+            ret.append(f"    }}")
+            ret.append(f"}}")
 
     return ret
 
@@ -393,7 +423,8 @@ def _generate_c_getopt_code(processed_args, getopt_string, opts, positionals, ha
     if needs_endptr:
         ret += "    char *endptr = NULL;\n"
 
-    ret += "    int ch;\n\n"
+    if opts:
+        ret += "    int ch;\n\n"
 
     if opts:
         if has_longopts:
@@ -476,7 +507,7 @@ def _generate_c_print_code(processed_args):
 
         ret += f"    printf(\"{arg.var_name}: {format_arg}\\n\", {var_name});\n"
 
-    return ret
+    return ret + "\n"
 
 def _generate_c_usage_code(processed_args):
     lines = []
@@ -513,7 +544,7 @@ def _generate_c_usage_code(processed_args):
             arg = None
             right_col = ""
             if opt.is_flag():
-                right_col = "\"A flag\\n\""
+                right_col = "A flag\\n\""
             else:
                 if ArgType.INT == opt.type:
                     right_col = f"An int value (default: %ld)\\n\", {opt.var_name}"
@@ -558,6 +589,7 @@ def generate_c_code(argv=sys.argv):
 
     long_opts = []
     has_flags = False
+    has_choices = False
     opts = []
     positionals = []
     decls = ""
@@ -589,6 +621,15 @@ def generate_c_code(argv=sys.argv):
             if arg.type == ArgType.FILE:
                 if arg.value == "FILE":
                     value = "NULL"
+            else:
+                # ArgType.STRING
+                choices = arg.value.split(',')
+                if len(choices) > 1:
+                    arg.value = choices
+                    value = f"\"{choices[0]}\""
+                    choicestrings = ", ".join([f"\"{c}\"" for c in choices])
+                    decls += f"static char *{arg.var_name}_choices[] = {{{choicestrings}}};\n"
+                    has_choices = True
 
         decls += f"static {typename} {varname} = {value};\n"
 
@@ -626,6 +667,9 @@ def generate_c_code(argv=sys.argv):
 
     if opts:
         comment_header += "#include <getopt.h>\n"
+
+    if has_choices:
+        comment_header += "#include <string.h>\n"
 
     parsing_code = _generate_c_getopt_code(processed_args, getopt_string, opts,
                                            positionals, len(long_opts) > 0)

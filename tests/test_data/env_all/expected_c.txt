@@ -1,0 +1,126 @@
+#include <stdbool.h>
+#include <getopt.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+static char *positional_arg1 = "positional_arg1";
+static char *positional_arg2 = "positional_arg2";
+static long int int_val = 4;
+static float e = 3.3;
+static char *file = NULL;
+static char *otherfile = NULL;
+static bool a = false;
+static bool b = false;
+static bool c = false;
+
+static struct option long_options[] =
+{
+    {"int-val", required_argument, NULL, 'i'},
+    {"file", required_argument, NULL, 'f'},
+    {"otherfile", required_argument, NULL, 'F'},
+    {NULL, 0, NULL, 0}
+};
+
+void print_usage(void)
+{
+    printf("\n");
+    printf("program_name [OPTIONS] positional_arg1 positional_arg2\n\n");
+    printf("-i --int-val [int]   An int value (default: %ld)\n", int_val);
+    printf("-e [float]           A float value (default: %.2f)\n", e);
+    printf("-f --file FILE       A filename (default: %s)\n", file ? file : "null");
+    printf("-F --otherfile FILE  A filename (default: %s)\n", otherfile ? otherfile : "null");
+    printf("-a                   A flag\n");
+    printf("-b                   A flag\n");
+    printf("-c                   A flag\n");
+    printf("\n");
+}
+
+int parse_args(int argc, char *argv[])
+{
+    char *endptr = NULL;
+    int ch;
+
+    while ((ch = getopt_long(argc, argv, "i:e:f:F:abc", long_options, NULL)) != -1)
+    {
+        switch (ch)
+        {
+            case 'i':
+            {
+                int_val = strtol(optarg, &endptr, 0);
+                if (endptr && (*endptr != '\0'))
+                {
+                    printf("Option '-i' requires an integer argument\n");
+                    return -1;
+                }
+                break;
+            }
+            case 'e':
+            {
+                e = strtof(optarg, &endptr);
+                if (endptr == optarg)
+                {
+                    printf("Option '-e' requires a floating-point argument\n");
+                    return -1;
+                }
+                break;
+            }
+            case 'f':
+            {
+                file = optarg;
+                break;
+            }
+            case 'F':
+            {
+                otherfile = optarg;
+                break;
+            }
+            case 'a':
+            {
+                a = true;
+                break;
+            }
+            case 'b':
+            {
+                b = true;
+                break;
+            }
+            case 'c':
+            {
+                c = true;
+                break;
+            }
+        }
+    }
+
+    if (argc < (optind + 2))
+    {
+        printf("Missing positional arguments\n");
+        return -1;
+    }
+
+    positional_arg1 = argv[optind];
+    optind++;
+
+    positional_arg2 = argv[optind];
+    optind++;
+
+    return 0;
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc < 2)
+    {
+        print_usage();
+        return -1;
+    }
+
+    int ret = parse_args(argc, argv);
+    if (0 != ret)
+    {
+        return ret;
+    }
+
+    return 0;
+}
+

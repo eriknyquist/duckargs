@@ -41,7 +41,7 @@ setup(
     zip_safe=False,
     entry_points = {
         'console_scripts': [
-            'duckargs=duckargs.__main__:main',
+            'duckargs=duckargs.__main__:duckargs_python',
             'duckargs-c=duckargs.__main__:duckargs_c',
             'duckargs-python=duckargs.__main__:duckargs_python'
         ]
