@@ -90,7 +90,7 @@ instead of ``duckargs-python``:
 
 ::
 
-    $ duckargs-c positional_arg1 positional_arg2 -i --int-val 4 -f 3.3 -f --file FILE -F --otherfile FILE -a -b -c
+    $ duckargs-c positional_arg1 positional_arg2 -i --int-val 4 -e 3.3 -f --file FILE -F --otherfile FILE -a -b -c
 
 The output of the above command looks like this:
 
