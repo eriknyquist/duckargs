@@ -40,7 +40,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     entry_points = {
-        'console_scripts': ['duckargs=duckargs.__main__:main']
+        'console_scripts': [
+            'duckargs=duckargs.__main__:main',
+            'duckargs-c=duckargs.__main__:duckargs_c',
+            'duckargs-python=duckargs.__main__:duckargs_python'
+        ]
     },
     python_requires=">=3.7",
     classifiers=[

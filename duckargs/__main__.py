@@ -1,21 +1,21 @@
 import sys
 from duckargs import generate_python_code, generate_c_code, __version__
 
-USAGE = """
-duckargs %s
+PYTHON_USAGE = """
+duckargs-python %s
 
 Erik K. Nyquist 2023
 
-The purpose of duckargs is to save some typing whenever you want to quickly create
-a python program that accepts command line arguments. Just run duckargs with the
+The purpose of duckargs-python is to save some typing whenever you want to quickly create
+a python program that accepts command line arguments. Just run duckargs-python with the
 options & arguments that you want your program to accept, with example argument
-values, and duckargs will generate the python code for a program that uses argparse
+values, and duckargs-python will generate the python code for a program that uses argparse
 to handle those arguments.
 
-For example, running duckargs like this:
+For example, running duckargs-python like this:
 
 
-    duckargs positional_arg -i --intval 12 -d --floatval 99.9 -f --somefile FILE
+    duckargs-python positional_arg -i --intval 12 -d --floatval 99.9 -f --somefile FILE
 
 
 Prints the following python code:
@@ -43,16 +43,59 @@ Prints the following python code:
 
 """ % __version__
 
-def main():
+C_USAGE = """
+duckargs-c %s
+
+Erik K. Nyquist 2023
+
+The purpose of duckargs-c is to save some typing whenever you want to quickly create
+a C program that accepts command line arguments. Just run duckargs-c with the options &
+arguments that you want your program to accept, with example argument values, and
+duckargs-c will generate the C code for a program that uses getopt.h to handle those
+arguments.
+
+For example, running duckargs-c like this:
+
+
+    duckargs-c positional_arg -i --intval 12 -d --floatval 99.9 -f --somefile FILE
+
+
+Prints the C code for a command-line program which accepts arguments in the following
+manner:
+
+program_name [OPTIONS] positional_arg
+
+-i --intval [int]      An int value (default: 12)
+-d --floatval [float]  A float value (default: 99.9)
+-f --somefile FILE     A filename (default: null)
+
+""" % __version__
+
+def duckargs_python():
+    """
+    CLI entry point for 'duckargs-python'
+    """
     if len(sys.argv) == 1:
-        print(USAGE)
+        print(PYTHON_USAGE)
         return
 
-    #try:
-        #print(generate_python_code())
-    print(generate_c_code())
-    #except (ValueError, RuntimeError) as e:
-    #    print(f"Error: {e}")
-    
+    try:
+        print(generate_python_code())
+    except (ValueError, RuntimeError) as e:
+        print(f"Error: {e}")
+
+def duckargs_c():
+    """
+    CLI entry point for 'duckargs-c'
+    """
+    if len(sys.argv) == 1:
+        print(C_USAGE)
+        return
+
+    try:
+        print(generate_c_code())
+    except (ValueError, RuntimeError) as e:
+        print(f"Error: {e}")
+
 if __name__ == "__main__":
-    main()
+    duckargs_python()

@@ -1,4 +1,4 @@
-__version__ = "1.3.0"
+__version__ = "1.4.0"
 
 import sys
 import os
@@ -376,8 +376,8 @@ def _generate_c_opt_lines(arg, desc=None, optarg='optarg'):
         ret.append(f"    printf(\"{desc} requires an integer argument\\n\");")
         ret.append(f"    return -1;")
         ret.append(f"}}")
-    elif ArgType.STRING == arg.type:
-        ret.append(f"{arg.var_name} = optarg;")
+    elif arg.type in [ArgType.STRING, ArgType.FILE]:
+        ret.append(f"{arg.var_name} = {optarg};")
 
     return ret
 
@@ -465,7 +465,7 @@ def _generate_c_print_code(processed_args):
             format_arg = "%s"
             var_name = f"{arg.var_name} ? \"true\" : \"false\""
         elif arg.type == ArgType.INT:
-            format_arg = "%d"
+            format_arg = "%ld"
             var_name = f"{arg.var_name}"
         elif arg.type == ArgType.FLOAT:
             format_arg = "%.4f"
@@ -489,7 +489,7 @@ def _generate_c_usage_code(processed_args):
         else:
             opts.append(arg)
 
-    lines.append("")
+    lines.append("\"\\n\"")
 
     line = "program_name"
     if opts:
@@ -499,33 +499,33 @@ def _generate_c_usage_code(processed_args):
         positional_names = ' '.join([x.var_name for x in positionals])
         line += f" {positional_names}"
 
-    lines.append(line + "\\n")
+    lines.append("\"" + line + "\\n\\n\"")
 
     if opts:
         longest_left_col = 0
         usage_lines = []
 
         for opt in opts:
-            left_col = opt.opt
+            left_col = "\"" + opt.opt
             if opt.longopt is not None:
                 left_col += " " + opt.longopt
 
             arg = None
             right_col = ""
             if opt.is_flag():
-                right_col = "A flag"
+                right_col = "\"A flag\\n\""
             else:
                 if ArgType.INT == opt.type:
-                    right_col = "An int value"
+                    right_col = f"An int value (default: %ld)\\n\", {opt.var_name}"
                     arg = " [int]"
                 elif ArgType.FLOAT == opt.type:
-                    right_col = "A float value"
+                    right_col = f"A float value (default: %.2f)\\n\", {opt.var_name}"
                     arg = " [float]"
                 elif ArgType.STRING == opt.type:
-                    right_col = "A string value"
+                    right_col = f"A string value (default: %s)\\n\", {opt.var_name} ? {opt.var_name} : \"null\""
                     arg = " [string]"
                 elif ArgType.FILE == opt.type:
-                    right_col = "A filename"
+                    right_col = f"A filename (default: %s)\\n\", {opt.var_name} ? {opt.var_name} : \"null\""
                     arg = " FILE"
 
             if arg is not None:
@@ -540,9 +540,9 @@ def _generate_c_usage_code(processed_args):
             num_spaces = (longest_left_col + 2) - len(leftcol)
             lines.append(leftcol + (" " * num_spaces) + rightcol)
 
-    lines.append("")
+    lines.append("\"\\n\"")
 
-    return '\n'.join([f"    printf(\"{line}\\n\");" for line in lines])
+    return '\n'.join([f"    printf({line});" for line in lines])
 
 def generate_c_code(argv=sys.argv):
     """
@@ -630,7 +630,15 @@ def generate_c_code(argv=sys.argv):
     parsing_code = _generate_c_getopt_code(processed_args, getopt_string, opts,
                                            positionals, len(long_opts) > 0)
 
-    print_code = _generate_c_print_code(processed_args)
+    print_code = ""
+    env_print = os.environ.get('DUCKARGS_PRINT', 1)
+    try:
+        env_print_int = int(env_print)
+    except ValueError:
+        raise RuntimeError("DUCKARGS_PRINT must be an integer")
+
+    if env_print_int > 0:
+        print_code = _generate_c_print_code(processed_args)
 
     usage_code = _generate_c_usage_code(processed_args)
 
