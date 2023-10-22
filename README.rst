@@ -82,8 +82,8 @@ The output of the above command looks like this:
     if __name__ == "__main__":
         main()
 
-Generating python code
-######################
+Generating C code
+#################
 
 For generating C code, the process is the same as for python code, except you should call ``duckargs-c``
 instead of ``duckargs-python``:
@@ -294,7 +294,7 @@ If you want to use duckargs in your own script, you can use the ``duckargs.gener
 .. code:: python
 
     import sys
-    from duckargs import generate_python_code
+    from duckargs import generate_python_code, generate_c_code
 
     python_code = generate_python_code(sys.argv)
 
