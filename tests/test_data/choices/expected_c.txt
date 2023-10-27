@@ -23,10 +23,12 @@ static struct option long_options[] =
 void print_usage(void)
 {
     printf("\n");
-    printf("program_name [OPTIONS] pos1 pos2\n\n");
-    printf("-f                    A flag\n");
-    printf("-g                    A flag\n");
-    printf("-q --qefqaf [string]  A string value (default: %s)\n", qefqaf ? qefqaf : "null");
+    printf("USAGE:\n\n");
+    printf("program_name [OPTIONS] pos1 pos2\n");
+    printf("\nOPTIONS:\n\n");
+    printf("-f                       A flag\n");
+    printf("-g                       A flag\n");
+    printf("-q --qefqaf [op|ep|orp]  A string value (default: %s)\n", qefqaf ? qefqaf : "null");
     printf("\n");
 }
 

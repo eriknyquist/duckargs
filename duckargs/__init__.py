@@ -521,6 +521,7 @@ def _generate_c_usage_code(processed_args):
             opts.append(arg)
 
     lines.append("\"\\n\"")
+    lines.append("\"USAGE:\\n\\n\"")
 
     line = "program_name"
     if opts:
@@ -530,9 +531,10 @@ def _generate_c_usage_code(processed_args):
         positional_names = ' '.join([x.var_name for x in positionals])
         line += f" {positional_names}"
 
-    lines.append("\"" + line + "\\n\\n\"")
+    lines.append("\"" + line + "\\n\"")
 
     if opts:
+        lines.append("\"\\nOPTIONS:\\n\\n\"")
         longest_left_col = 0
         usage_lines = []
 
@@ -546,7 +548,11 @@ def _generate_c_usage_code(processed_args):
             if opt.is_flag():
                 right_col = "A flag\\n\""
             else:
-                if ArgType.INT == opt.type:
+                if type(opt.value) == list:
+                    right_col = f"A string value (default: %s)\\n\", {opt.var_name} ? {opt.var_name} : \"null\""
+                    choices = '|'.join(opt.value)
+                    arg = f" [{choices}]"
+                elif ArgType.INT == opt.type:
                     right_col = f"An int value (default: %ld)\\n\", {opt.var_name}"
                     arg = " [int]"
                 elif ArgType.FLOAT == opt.type:

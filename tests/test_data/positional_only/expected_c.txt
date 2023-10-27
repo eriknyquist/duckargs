@@ -14,7 +14,8 @@ static char *pos6 = "pos6";
 void print_usage(void)
 {
     printf("\n");
-    printf("program_name pos1 pos2 pos3 pos4 pos5 pos6\n\n");
+    printf("USAGE:\n\n");
+    printf("program_name pos1 pos2 pos3 pos4 pos5 pos6\n");
     printf("\n");
 }
 

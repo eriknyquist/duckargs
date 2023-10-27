@@ -18,7 +18,9 @@ static bool h = false;
 void print_usage(void)
 {
     printf("\n");
-    printf("program_name [OPTIONS]\n\n");
+    printf("USAGE:\n\n");
+    printf("program_name [OPTIONS]\n");
+    printf("\nOPTIONS:\n\n");
     printf("-a  A flag\n");
     printf("-b  A flag\n");
     printf("-c  A flag\n");

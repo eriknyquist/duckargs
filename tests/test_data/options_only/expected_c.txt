@@ -21,7 +21,9 @@ static struct option long_options[] =
 void print_usage(void)
 {
     printf("\n");
-    printf("program_name [OPTIONS]\n\n");
+    printf("USAGE:\n\n");
+    printf("program_name [OPTIONS]\n");
+    printf("\nOPTIONS:\n\n");
     printf("-a [int]            An int value (default: %ld)\n", a);
     printf("-b --bbb [float]    A float value (default: %.2f)\n", bbb);
     printf("-t --tttt [string]  A string value (default: %s)\n", tttt ? tttt : "null");

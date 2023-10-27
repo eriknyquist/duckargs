@@ -20,7 +20,9 @@ static struct option long_options[] =
 void print_usage(void)
 {
     printf("\n");
-    printf("program_name [OPTIONS] positional_arg0 positional_arg1\n\n");
+    printf("USAGE:\n\n");
+    printf("program_name [OPTIONS] positional_arg0 positional_arg1\n");
+    printf("\nOPTIONS:\n\n");
     printf("-f --ff [int]    An int value (default: %ld)\n", ff);
     printf("-b --blah [int]  An int value (default: %ld)\n", blah);
     printf("\n");
