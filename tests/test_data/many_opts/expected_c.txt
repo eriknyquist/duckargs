@@ -208,7 +208,6 @@ int parse_args(int argc, char *argv[])
     optind++;
 
     pos10 = argv[optind];
-    optind++;
 
     return 0;
 }

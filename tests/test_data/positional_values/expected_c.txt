@@ -70,7 +70,6 @@ int parse_args(int argc, char *argv[])
     optind++;
 
     hello = argv[optind];
-    optind++;
 
     return 0;
 }

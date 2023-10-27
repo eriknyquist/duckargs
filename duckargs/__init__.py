@@ -462,7 +462,11 @@ def _generate_c_getopt_code(processed_args, getopt_string, opts, positionals, ha
                 desc = f"Positional argument #{i + 1} ({arg.var_name})"
                 optarg = f"argv[optind]"
                 ret += '\n'.join(["    " + x for x in _generate_c_opt_lines(arg, desc, optarg)])
-                ret += "\n    optind++;\n\n"
+
+                if i < (len(positionals) - 1):
+                    ret += "\n    optind++;"
+
+                ret += "\n\n"
 
             pass
 

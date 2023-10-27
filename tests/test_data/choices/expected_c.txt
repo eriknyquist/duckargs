@@ -80,7 +80,6 @@ int parse_args(int argc, char *argv[])
     optind++;
 
     pos2 = argv[optind];
-    optind++;
 
     return 0;
 }

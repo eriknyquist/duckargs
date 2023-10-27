@@ -104,7 +104,6 @@ int parse_args(int argc, char *argv[])
     optind++;
 
     positional_arg2 = argv[optind];
-    optind++;
 
     return 0;
 }

@@ -80,7 +80,6 @@ int parse_args(int argc, char *argv[])
         printf("Positional argument #2 (positional_arg1) requires an integer argument\n");
         return -1;
     }
-    optind++;
 
     return 0;
 }
