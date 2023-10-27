@@ -28,8 +28,8 @@ with open(README, 'r') as f:
 setup(
     name='duckargs',
     version=__version__,
-    description=('Productivity tool for quickly creating python programs that parse command-line arguments. '
-                 'Stop writing argparse boilerplate code!'),
+    description=('Code generation tool, creates python / C programs that parse command line arguments. '
+                 'Say goodbye to starting each project by reading "argparse" / "geptopt.h" docs.'),
     long_description=long_description,
     url='http://github.com/eriknyquist/duckargs',
     author='Erik Nyquist',
