@@ -123,12 +123,12 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    printf("positional_arg1: %s\n", positional_arg1);
-    printf("positional_arg2: %s\n", positional_arg2);
+    printf("positional_arg1: %s\n", positional_arg1 ? positional_arg1 : "null");
+    printf("positional_arg2: %s\n", positional_arg2 ? positional_arg2 : "null");
     printf("int_val: %ld\n", int_val);
     printf("e: %.4f\n", e);
-    printf("file: %s\n", file);
-    printf("otherfile: %s\n", otherfile);
+    printf("file: %s\n", file ? file : "null");
+    printf("otherfile: %s\n", otherfile ? otherfile : "null");
     printf("a: %s\n", a ? "true" : "false");
     printf("b: %s\n", b ? "true" : "false");
     printf("c: %s\n", c ? "true" : "false");

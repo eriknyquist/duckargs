@@ -89,11 +89,11 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    printf("positional_arg0: %s\n", positional_arg0);
+    printf("positional_arg0: %s\n", positional_arg0 ? positional_arg0 : "null");
     printf("positional_arg1: %ld\n", positional_arg1);
     printf("positional_arg2: %.4f\n", positional_arg2);
-    printf("hello: %s\n", hello);
-    printf("ra: %s\n", ra);
+    printf("hello: %s\n", hello ? hello : "null");
+    printf("ra: %s\n", ra ? ra : "null");
 
     return 0;
 }

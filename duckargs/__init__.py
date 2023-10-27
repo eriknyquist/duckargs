@@ -503,7 +503,7 @@ def _generate_c_print_code(processed_args):
             var_name = f"{arg.var_name}"
         elif arg.type in [ArgType.FILE, ArgType.STRING]:
             format_arg = "%s"
-            var_name = f"{arg.var_name}"
+            var_name = f"{arg.var_name} ? {arg.var_name} : \"null\""
 
         ret += f"    printf(\"{arg.var_name}: {format_arg}\\n\", {var_name});\n"
 

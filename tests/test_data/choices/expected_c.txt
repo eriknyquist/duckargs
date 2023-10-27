@@ -99,11 +99,11 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    printf("pos1: %s\n", pos1);
-    printf("pos2: %s\n", pos2);
+    printf("pos1: %s\n", pos1 ? pos1 : "null");
+    printf("pos2: %s\n", pos2 ? pos2 : "null");
     printf("f: %s\n", f ? "true" : "false");
     printf("g: %s\n", g ? "true" : "false");
-    printf("qefqaf: %s\n", qefqaf);
+    printf("qefqaf: %s\n", qefqaf ? qefqaf : "null");
 
     return 0;
 }

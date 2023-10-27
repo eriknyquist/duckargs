@@ -98,9 +98,9 @@ int main(int argc, char *argv[])
 
     printf("a: %ld\n", a);
     printf("bbb: %.4f\n", bbb);
-    printf("tttt: %s\n", tttt);
-    printf("j: %s\n", j);
-    printf("k: %s\n", k);
+    printf("tttt: %s\n", tttt ? tttt : "null");
+    printf("j: %s\n", j ? j : "null");
+    printf("k: %s\n", k ? k : "null");
 
     return 0;
 }

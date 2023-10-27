@@ -56,12 +56,12 @@ int main(int argc, char *argv[])
         return ret;
     }
 
-    printf("pos1: %s\n", pos1);
-    printf("pos2: %s\n", pos2);
-    printf("pos3: %s\n", pos3);
-    printf("pos4: %s\n", pos4);
-    printf("pos5: %s\n", pos5);
-    printf("pos6: %s\n", pos6);
+    printf("pos1: %s\n", pos1 ? pos1 : "null");
+    printf("pos2: %s\n", pos2 ? pos2 : "null");
+    printf("pos3: %s\n", pos3 ? pos3 : "null");
+    printf("pos4: %s\n", pos4 ? pos4 : "null");
+    printf("pos5: %s\n", pos5 ? pos5 : "null");
+    printf("pos6: %s\n", pos6 ? pos6 : "null");
 
     return 0;
 }

@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
     }
 
     printf("fff: %ld\n", fff);
-    printf("q: %s\n", q);
-    printf("test: %s\n", test);
+    printf("q: %s\n", q ? q : "null");
+    printf("test: %s\n", test ? test : "null");
 
     return 0;
 }

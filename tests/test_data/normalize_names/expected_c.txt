@@ -109,9 +109,9 @@ int main(int argc, char *argv[])
     printf("test_1: %ld\n", test_1);
     printf("test___2: %ld\n", test___2);
     printf("j__j: %s\n", j__j ? "true" : "false");
-    printf("lp__l: %s\n", lp__l);
-    printf("pos_2: %s\n", pos_2);
-    printf("pos___3: %s\n", pos___3);
+    printf("lp__l: %s\n", lp__l ? lp__l : "null");
+    printf("pos_2: %s\n", pos_2 ? pos_2 : "null");
+    printf("pos___3: %s\n", pos___3 ? pos___3 : "null");
 
     return 0;
 }
