@@ -9,15 +9,16 @@ duckargs |duck|
 .. |cov_badge| image:: https://github.com/eriknyquist/duckargs/actions/workflows/coverage.yml/badge.svg
 .. |version_badge| image:: https://badgen.net/pypi/v/duckargs
 .. |license_badge| image:: https://badgen.net/pypi/license/duckargs
+.. |downloads_badge| image:: https://static.pepy.tech/badge/duckargs
+.. |conda_badge| image:: https://img.shields.io/conda/dn/conda-forge/duckargs.svg?label=conda-forge
 
-|tests_badge| |cov_badge| |version_badge| |license_badge|
+|tests_badge| |cov_badge| |version_badge| |license_badge| |downloads_badge| |conda_badge|
 
 The purpose of ``duckargs`` is to save some typing whenever you want to quickly
 create a python program or C program that accepts command line arguments. Just run
 ``duckargs`` (generates python), ``duckargs-python`` (also generates python) or
-``duckargs-c`` (generates C)
-with the arguments that you want your program to accept, with example values provided
-to options, and ``duckargs`` will generate the code for a program that handles those
+``duckargs-c`` (generates C) with all the options/arguments that you want your program
+to accept, and ``duckargs`` will print the code for a program that handles those
 options/arguments.
 
 Install
@@ -125,7 +126,9 @@ The output of the above command looks like this:
     void print_usage(void)
     {
         printf("\n");
-        printf("program_name [OPTIONS] positional_arg1 positional_arg2\n\n");
+        printf("USAGE:\n\n");
+        printf("program_name [OPTIONS] positional_arg1 positional_arg2\n");
+        printf("\nOPTIONS:\n\n");
         printf("-i --int-val [int]   An int value (default: %ld)\n", int_val);
         printf("-e [float]           A float value (default: %.2f)\n", e);
         printf("-f --file FILE       A filename (default: %s)\n", file ? file : "null");
@@ -203,7 +206,6 @@ The output of the above command looks like this:
         optind++;
 
         positional_arg2 = argv[optind];
-        optind++;
 
         return 0;
     }
@@ -222,12 +224,12 @@ The output of the above command looks like this:
             return ret;
         }
 
-        printf("positional_arg1: %s\n", positional_arg1);
-        printf("positional_arg2: %s\n", positional_arg2);
+        printf("positional_arg1: %s\n", positional_arg1 ? positional_arg1 : "null");
+        printf("positional_arg2: %s\n", positional_arg2 ? positional_arg2 : "null");
         printf("int_val: %ld\n", int_val);
         printf("e: %.4f\n", e);
-        printf("file: %s\n", file);
-        printf("otherfile: %s\n", otherfile);
+        printf("file: %s\n", file ? file : "null");
+        printf("otherfile: %s\n", otherfile ? otherfile : "null");
         printf("a: %s\n", a ? "true" : "false");
         printf("b: %s\n", b ? "true" : "false");
         printf("c: %s\n", c ? "true" : "false");
@@ -240,12 +242,66 @@ Comma-separated choices for option argument
 ===========================================
 
 If you have an option which accepts an argument, and you write an argument string with
-multiple values separated by commas (e.g. ``-m --mode active,idle,sim``), then ``duckargs``
-will use the comma-separated values as a ``choices`` list for argparse, e.g.:
+multiple values separated by commas (e.g. ``-m --mode active,idle,sim``), then generated 
+python code will use the comma-separated values as a ``choices`` list for argparse:
 
 ::
 
     parser.add_argument('-m', '--mode', choices=['active', 'idle', 'sim'], default='active', help='a string')
+
+And generated C code will use the comma-separated values to restrict values in a similar manner:
+
+.. code:: c
+
+    static char *mode_choices[] = {"active", "idle", "stop"};
+    static char *mode = "active";
+
+    static struct option long_options[] =
+    {
+        {"mode", required_argument, NULL, 'm'},
+        {NULL, 0, NULL, 0}
+    };
+
+    void print_usage(void)
+    {
+        printf("\n");
+        printf("USAGE:\n\n");
+        printf("program_name [OPTIONS]\n");
+        printf("\nOPTIONS:\n\n");
+        printf("-m --mode [active|idle|stop]  A string value (default: %s)\n", mode ? mode : "null");
+        printf("\n");
+    }
+
+    int parse_args(int argc, char *argv[])
+    {
+        int ch;
+
+        while ((ch = getopt_long(argc, argv, "m:", long_options, NULL)) != -1)
+        {
+            switch (ch)
+            {
+                case 'm':
+                {
+                    mode = optarg;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (0 == strcmp(mode_choices[i], mode))
+                        {
+                            break;
+                        }
+                        if (i == 2)
+                        {
+                            printf("Option '-m' must be one of ['active', 'idle', 'stop']\n");
+                            return -1;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return 0;
+    }
 
 Filenames for option arguments
 ==============================
@@ -258,11 +314,52 @@ If you have an option that you want to accept a filename, you have two ways to t
 
 * Pass ``FILE`` as the option argument (e.g. ``-f --filename FILE``)
 
-Either of which will generate a line like this:
+Either of which will generate python code like this:
 
-::
+.. code:: python
 
     parser.add_argument('-f', '--filename', default='file', type=argparse.FileType(), help='a filename')
+
+And will generate C code like this:
+
+.. code:: c
+
+    static char *file = NULL;
+
+    static struct option long_options[] =
+    {
+        {"file", required_argument, NULL, 'f'},
+        {NULL, 0, NULL, 0}
+    };
+
+    void print_usage(void)
+    {
+        printf("\n");
+        printf("USAGE:\n\n");
+        printf("program_name [OPTIONS]\n");
+        printf("\nOPTIONS:\n\n");
+        printf("-f --file FILE  A filename (default: %s)\n", file ? file : "null");
+        printf("\n");
+    }
+
+    int parse_args(int argc, char *argv[])
+    {
+        int ch;
+
+        while ((ch = getopt_long(argc, argv, "f:", long_options, NULL)) != -1)
+        {
+            switch (ch)
+            {
+                case 'f':
+                {
+                    file = optarg;
+                    break;
+                }
+            }
+        }
+
+        return 0;
+    }
 
 Environment variables
 =====================
@@ -275,7 +372,8 @@ Some things can be configured by setting environment variables.
 By default, ``duckargs`` generates a program that prints all provided arguments/options
 to stdout after argument parsing is complete.
 If you want to disable this and generate programs without the print statements, set
-``DUCKARGS_PRINT=0`` in your environment variables.
+``DUCKARGS_PRINT=0`` in your environment variables. This environment variable affects
+generated C code and generated python code.
 
 ``DUCKARGS_COMMENT``
 ####################
@@ -283,7 +381,7 @@ If you want to disable this and generate programs without the print statements, 
 By default, ``duckargs`` generates a program that prints a comment header at the top,
 showing the arguments that ``duckargs`` was invoked with. If you want to disable this and
 generate programs without the comment header, set ``DUCKARGS_COMMENT=0`` in your environment
-variables.
+variables. This environment variable affects generated C code and generated python code.
 
 Use duckargs in python code
 ===========================

@@ -7,10 +7,9 @@ duckargs-python %s
 Erik K. Nyquist 2023
 
 The purpose of duckargs-python is to save some typing whenever you want to quickly create
-a python program that accepts command line arguments. Just run duckargs-python with the
-options & arguments that you want your program to accept, with example argument
-values, and duckargs-python will generate the python code for a program that uses argparse
-to handle those arguments.
+a python program that accepts command line arguments. Just run duckargs-python with all the
+options & arguments that you want your program to accept, and duckargs-python will print
+the python code for a program that uses argparse to handle those options & arguments.
 
 For example, running duckargs-python like this:
 
@@ -50,9 +49,8 @@ Erik K. Nyquist 2023
 
 The purpose of duckargs-c is to save some typing whenever you want to quickly create
 a C program that accepts command line arguments. Just run duckargs-c with the options &
-arguments that you want your program to accept, with example argument values, and
-duckargs-c will generate the C code for a program that uses getopt.h to handle those
-arguments.
+arguments that you want your program to accept, and duckargs-c will generate the C code
+for a program that uses getopt.h to handle those options & arguments.
 
 For example, running duckargs-c like this:
 
