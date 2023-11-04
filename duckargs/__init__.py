@@ -3,7 +3,7 @@ __version__ = "1.5.0"
 import sys
 import os
 import re
-from keyword import iskeyword, issoftkeyword
+from keyword import iskeyword
 
 PYTHON_TEMPLATE = """{0}import argparse
 
@@ -276,7 +276,7 @@ def process_args(reserved_str_check, argv=sys.argv):
     return ret
 
 def _is_python_reserved_str(var_name):
-    if iskeyword(var_name) or issoftkeyword(var_name):
+    if iskeyword(var_name):
         return True
 
     return var_name in ['int', 'float', 'bool', 'dict', 'list', 'tuple']
