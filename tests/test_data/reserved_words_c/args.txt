@@ -1,0 +1,1 @@
+duckargs-c -i --int 55 -f --float 4.4 -s --struct -v --void -q --for -b --break -r --return -a --auto -p --static -w --while -o --switch -t --typedef -k --double -x --signed -e --const

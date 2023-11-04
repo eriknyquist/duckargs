@@ -107,6 +107,18 @@ class TestDuckargs(unittest.TestCase):
     def test_negative_hex_python(self):
         self._run_python_test("negative_hex")
 
+    def test_reserved_words_python_python(self):
+        self._run_python_test("reserved_words_python")
+
+    def test_reserved_words_python_c(self):
+        self._run_c_test("reserved_words_python")
+
+    def test_reserved_words_c_python(self):
+        self._run_python_test("reserved_words_c")
+
+    def test_reserved_words_c_c(self):
+        self._run_c_test("reserved_words_c")
+
     def test_env_print_c(self):
         os.environ["DUCKARGS_PRINT"] = "0"
         self._run_c_test("env_print")

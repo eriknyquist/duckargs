@@ -1,8 +1,9 @@
-__version__ = "1.4.0"
+__version__ = "1.5.0"
 
 import sys
 import os
 import re
+from keyword import iskeyword, issoftkeyword
 
 PYTHON_TEMPLATE = """{0}import argparse
 
@@ -96,6 +97,7 @@ class CmdlineOpt(object):
         self.longopt = None
         self.type = None
         self.var_name = None
+        self.desc = None
 
     def finalize(self):
         """
@@ -118,6 +120,8 @@ class CmdlineOpt(object):
                 raise RuntimeError(f"Invalid attribute values for {self.__class__.__name__}")
 
             self.var_name = varname.lstrip('-').replace('-', '_')
+
+        self.desc = self.var_name
 
         if self.value is None:
             return
@@ -218,7 +222,7 @@ class CmdlineOpt(object):
         return self.__str__()
 
 
-def process_args(argv=sys.argv):
+def process_args(reserved_str_check, argv=sys.argv):
     """
     Process all command line arguments and return a list of CmdlineOpt instances
 
@@ -264,7 +268,29 @@ def process_args(argv=sys.argv):
             else:
                 seen_longopt_names[o.opt] = None
 
+        if reserved_str_check(o.var_name):
+            # If var_name is a reserved word for generated language, append 'val'.
+            # So if you pass '-i --int', for example, the var name will be 'intval'
+            o.var_name += "val"
+
     return ret
+
+def _is_python_reserved_str(var_name):
+    if iskeyword(var_name) or issoftkeyword(var_name):
+        return True
+
+    return var_name in ['int', 'float', 'bool', 'dict', 'list', 'tuple']
+
+def _is_c_reserved_str(var_name):
+    return var_name in [
+        'bool', '_Bool', 'char', 'unsigned', 'short', 'int', 'long', 'size_t', 'ssize_t',
+        'time_t', 'float', 'double', 'long', 'wchar_t', 'void', 'int8_t', 'uint8_t',
+        'int16_t', 'uint16_t', 'int32_t', 'uint32_t', 'int64_t', 'uint64_t', 'int128_t',
+        'uint128_t', 'static', 'void', 'auto', 'restrict', 'register', 'return', 'switch',
+        'union', 'extern', 'enum', 'if', 'else', 'for', 'while', 'do', 'break', 'signed',
+        'sizeof', 'typedef', 'struct', 'case', 'default', 'volatile', 'goto', 'continue',
+        'const'
+    ]
 
 def _generate_python_code_line(opt):
     """
@@ -322,7 +348,7 @@ def _generate_python_code_line(opt):
             raise RuntimeError('Invalid type setting')
 
     elif opt.is_flag():
-        helptext = f"{opt.var_name} flag"
+        helptext = f"{opt.desc} flag"
 
     funcargs += f", help='{helptext}'"
 
@@ -339,7 +365,7 @@ def generate_python_code(argv=sys.argv):
     :return: text of the corresponding python program
     :rtype: str
     """
-    processed_args = process_args(argv)
+    processed_args = process_args(_is_python_reserved_str, argv)
     optlines = "    " + "\n    ".join([_generate_python_code_line(o) for o in processed_args])
 
     printlines = ""
@@ -509,7 +535,7 @@ def _generate_c_print_code(processed_args):
             format_arg = "%s"
             var_name = f"{arg.var_name} ? {arg.var_name} : \"null\""
 
-        ret += f"    printf(\"{arg.var_name}: {format_arg}\\n\", {var_name});\n"
+        ret += f"    printf(\"{arg.desc}: {format_arg}\\n\", {var_name});\n"
 
     return ret + "\n"
 
@@ -595,7 +621,7 @@ def generate_c_code(argv=sys.argv):
     :return: text of the corresponding C program
     :rtype: str
     """
-    processed_args = process_args(argv)
+    processed_args = process_args(_is_c_reserved_str, argv)
 
     long_opts = []
     has_flags = False
