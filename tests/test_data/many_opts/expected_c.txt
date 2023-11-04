@@ -55,20 +55,20 @@ void print_usage(void)
     printf("program_name [OPTIONS] pos1 pos2 pos3 pos4 pos5 pos6 pos7 pos8 pos9 pos10\n");
     printf("\nOPTIONS:\n\n");
     printf("-a --aye [int]     An int value (default: %ld)\n", aye);
-    printf("-w --yyy           A flag\n");
+    printf("-w --yyy           yyy flag\n");
     printf("-k [float]         A float value (default: %.2f)\n", k);
     printf("-l [string]        A string value (default: %s)\n", l ? l : "null");
-    printf("-o --out           A flag\n");
-    printf("-d --ede           A flag\n");
+    printf("-o --out           out flag\n");
+    printf("-d --ede           ede flag\n");
     printf("-v --vvv [string]  A string value (default: %s)\n", vvv ? vvv : "null");
-    printf("-s --ssss          A flag\n");
-    printf("-z --zzzz          A flag\n");
+    printf("-s --ssss          ssss flag\n");
+    printf("-z --zzzz          zzzz flag\n");
     printf("-c --ccc [string]  A string value (default: %s)\n", ccc ? ccc : "null");
     printf("-b --bbb [int]     An int value (default: %ld)\n", bbb);
     printf("-i --ii [string]   A string value (default: %s)\n", ii ? ii : "null");
-    printf("-q --qqqqsdgvs     A flag\n");
-    printf("-y                 A flag\n");
-    printf("-r                 A flag\n");
+    printf("-q --qqqqsdgvs     qqqqsdgvs flag\n");
+    printf("-y                 y flag\n");
+    printf("-r                 r flag\n");
     printf("\n");
 }
 

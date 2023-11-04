@@ -50,19 +50,19 @@ void print_usage(void)
     printf("\nOPTIONS:\n\n");
     printf("-i --int [int]      An int value (default: %ld)\n", intval);
     printf("-f --float [float]  A float value (default: %.2f)\n", floatval);
-    printf("-s --struct         A flag\n");
-    printf("-v --void           A flag\n");
-    printf("-q --for            A flag\n");
-    printf("-b --break          A flag\n");
-    printf("-r --return         A flag\n");
-    printf("-a --auto           A flag\n");
-    printf("-p --static         A flag\n");
-    printf("-w --while          A flag\n");
-    printf("-o --switch         A flag\n");
-    printf("-t --typedef        A flag\n");
-    printf("-k --double         A flag\n");
-    printf("-x --signed         A flag\n");
-    printf("-e --const          A flag\n");
+    printf("-s --struct         struct flag\n");
+    printf("-v --void           void flag\n");
+    printf("-q --for            for flag\n");
+    printf("-b --break          break flag\n");
+    printf("-r --return         return flag\n");
+    printf("-a --auto           auto flag\n");
+    printf("-p --static         static flag\n");
+    printf("-w --while          while flag\n");
+    printf("-o --switch         switch flag\n");
+    printf("-t --typedef        typedef flag\n");
+    printf("-k --double         double flag\n");
+    printf("-x --signed         signed flag\n");
+    printf("-e --const          const flag\n");
     printf("\n");
 }
 

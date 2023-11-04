@@ -31,9 +31,9 @@ void print_usage(void)
     printf("-e [float]           A float value (default: %.2f)\n", e);
     printf("-f --file FILE       A filename (default: %s)\n", file ? file : "null");
     printf("-F --otherfile FILE  A filename (default: %s)\n", otherfile ? otherfile : "null");
-    printf("-a                   A flag\n");
-    printf("-b                   A flag\n");
-    printf("-c                   A flag\n");
+    printf("-a                   a flag\n");
+    printf("-b                   b flag\n");
+    printf("-c                   c flag\n");
     printf("\n");
 }
 

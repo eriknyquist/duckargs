@@ -30,7 +30,7 @@ void print_usage(void)
     printf("\nOPTIONS:\n\n");
     printf("-a --test_1 [int]    An int value (default: %ld)\n", test_1);
     printf("-b --test__-2 [int]  An int value (default: %ld)\n", test___2);
-    printf("-j --j--j            A flag\n");
+    printf("-j --j--j            j__j flag\n");
     printf("-g --lp--l [string]  A string value (default: %s)\n", lp__l ? lp__l : "null");
     printf("\n");
 }

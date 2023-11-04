@@ -21,14 +21,14 @@ void print_usage(void)
     printf("USAGE:\n\n");
     printf("program_name [OPTIONS]\n");
     printf("\nOPTIONS:\n\n");
-    printf("-a  A flag\n");
-    printf("-b  A flag\n");
-    printf("-c  A flag\n");
-    printf("-d  A flag\n");
-    printf("-e  A flag\n");
-    printf("-f  A flag\n");
-    printf("-g  A flag\n");
-    printf("-h  A flag\n");
+    printf("-a  a flag\n");
+    printf("-b  b flag\n");
+    printf("-c  c flag\n");
+    printf("-d  d flag\n");
+    printf("-e  e flag\n");
+    printf("-f  f flag\n");
+    printf("-g  g flag\n");
+    printf("-h  h flag\n");
     printf("\n");
 }
 

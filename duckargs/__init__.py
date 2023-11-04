@@ -576,7 +576,7 @@ def _generate_c_usage_code(processed_args):
             arg = None
             right_col = ""
             if opt.is_flag():
-                right_col = "A flag\\n\""
+                right_col = f"{opt.desc} flag\\n\""
             else:
                 if type(opt.value) == list:
                     right_col = f"A string value (default: %s)\\n\", {opt.var_name} ? {opt.var_name} : \"null\""

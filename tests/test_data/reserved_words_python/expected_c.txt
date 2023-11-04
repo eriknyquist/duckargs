@@ -46,17 +46,17 @@ void print_usage(void)
     printf("\nOPTIONS:\n\n");
     printf("-i --int [int]      An int value (default: %ld)\n", intval);
     printf("-f --float [float]  A float value (default: %.2f)\n", floatval);
-    printf("-d --dict           A flag\n");
-    printf("-t --tuple          A flag\n");
-    printf("-r --return         A flag\n");
-    printf("-l --lambda         A flag\n");
-    printf("-n --nonlocal       A flag\n");
-    printf("-q --from           A flag\n");
-    printf("-c --continue       A flag\n");
-    printf("-y --yield          A flag\n");
-    printf("-g --global         A flag\n");
-    printf("-u --del            A flag\n");
-    printf("-b --class          A flag\n");
+    printf("-d --dict           dict flag\n");
+    printf("-t --tuple          tuple flag\n");
+    printf("-r --return         return flag\n");
+    printf("-l --lambda         lambda flag\n");
+    printf("-n --nonlocal       nonlocal flag\n");
+    printf("-q --from           from flag\n");
+    printf("-c --continue       continue flag\n");
+    printf("-y --yield          yield flag\n");
+    printf("-g --global         global flag\n");
+    printf("-u --del            del flag\n");
+    printf("-b --class          class flag\n");
     printf("\n");
 }
 
