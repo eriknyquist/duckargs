@@ -44,8 +44,8 @@ Let's imagine that you want to create a little command-line tool that accepts th
 following command line options/arguments:
 
 * A positional argument, string
-* An optional integer value (``-i`` or ``--integer``)
-* An optional float value (``-f`` or ``--float``)
+* An optional integer value (``-i`` or ``--intval``)
+* An optional float value (``-f`` or ``--floatval``)
 * A flag (``-q``)
 
 You can run ``duckargs`` and pass all those options/arguments/flags, and ``duckargs`` will
@@ -212,7 +212,7 @@ If you have an option which accepts an argument, and you write an argument strin
 multiple values separated by commas (e.g. ``-m --mode active,idle,sim``), then generated 
 python code will use the comma-separated values as a ``choices`` list for argparse:
 
-::
+.. code:: python
 
     parser.add_argument('-m', '--mode', choices=['active', 'idle', 'sim'], default='active', help='a string')
 
