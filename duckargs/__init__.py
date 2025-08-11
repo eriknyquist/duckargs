@@ -1,4 +1,4 @@
-__version__ = "1.5.0"
+__version__ = "1.5.1"
 
 import sys
 import os
@@ -34,19 +34,13 @@ int parse_args(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {{
-    if (argc < 2)
-    {{
-        print_usage();
-        return -1;
-    }}
-
-    int ret = parse_args(argc, argv);
+{4}    int ret = parse_args(argc, argv);
     if (0 != ret)
     {{
         return ret;
     }}
 
-{4}    return 0;
+{5}    return 0;
 }}
 """
 
@@ -722,4 +716,13 @@ def generate_c_code(argv=sys.argv):
 
     usage_code = _generate_c_usage_code(processed_args)
 
-    return C_TEMPLATE.format(comment_header, decls, usage_code, parsing_code, print_code)
+    if len(positionals) > 0:
+        argcheck = (f"    if (argc < {len(positionals) + 1})\n"
+                     "    {\n"
+                     "        print_usage();\n"
+                     "        return -1;\n"
+                     "    }\n\n")
+    else:
+        argcheck = ""
+
+    return C_TEMPLATE.format(comment_header, decls, usage_code, parsing_code, argcheck, print_code)
